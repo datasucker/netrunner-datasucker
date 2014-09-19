@@ -5,38 +5,6 @@ var fallbackDataURL = 'http://www.cardgamedb.com/deckbuilders/androidnetrunner/d
 // set to false if you want imagesrc to hotlink directly to CardGameDB.com
 var sideLoadImages = true;
 
-// Map set names to the standard numerical value (padded with a zero if needed)
-// use lower case as the key name as the incoming data will be sanitized.
-// the leading zero of the value is required - hence string values and not numbers.
-var setNameMap = {
-	"core" : "01",
-	// Genesis Cycle
-	"what lies ahead" : "02",
-	"trace amount" : "02",
-	"cyber exodus" : "02",
-	"a study in static" : "02",
-	"humanity's shadow" : "02",
-	"future proof" : "02",
-	//
-	"creation and control" : "03",
-	// The Spin Cycle
-	"opening moves" : "04",
-	"second thoughts" : "04",
-	"mala tempora" : "04",
-	"true colors" : "04",
-	"fear and loathing" : "04",
-	"double time" : "04",
-	//
-	"honor and profit" : "05",
-	// The Lunar Cycle
-	"upstalk" : "06",
-	"the spaces between" : "06",
-	"first contact" : "06",
-	"up and over" : "06",
-	"all that remains" : "06",
-	"the source" : "06",
-};
-
 // Change this to whatever you want to call the Data Objects in Parse (not exceptionally important)
 var CardObjectName = "NRCard";
 
@@ -44,13 +12,7 @@ var CardObjectName = "NRCard";
 function mapCard(rawCard) {
 	var card = new Object();
 	{
-		// sanitize the set name by trimming and lower-case
-		var setcode = setNameMap[decodeHtmlEntity(rawCard.setname.trim().toLowerCase())];
-		if (setcode == null) {
-			setcode = "XX";
-		}
-		// TODO: "num" is currently a 3-digit string. Might want to include a printf javascript lib to guarantee it
-		card.code = setcode + rawCard.num;
+		card.code = rawCard.GUID.slice(-5);
 		card.title = rawCard.name;
 
 		card.agendapoints = parseRawValue(rawCard, "agendapoints", true);
