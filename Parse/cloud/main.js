@@ -135,6 +135,8 @@ app.get('/', function(req, res) {
 });
 
 app.get('/status', function(req, res) {
+	res.header('Access-Control-Allow-Origin', "*");
+
 	getConfigParam("lastupdated").then(function(configParam) {
 		var timestamp = "";
 		if (configParam != null) {
@@ -149,6 +151,8 @@ app.get('/status', function(req, res) {
 // TODO: parse has a limit of 1000 objects returned
 // ... we need to batch multiple requests before we break 1k cards
 app.get('/cards', function(req, res) {
+	res.header('Access-Control-Allow-Origin', "*");
+
 	var cardsArray = [];
 	getCards(0, cardsArray, function(results) {
 		res.json(results.map(sanitizeCard));
@@ -187,6 +191,8 @@ function sanitizeCard(parsecard) {
 
 // Get a card's JSON data by its code (ex: "01024")
 app.get('/card/:code', function(req, res) {
+	res.header('Access-Control-Allow-Origin', "*");
+	
 	var code = req.params.code;
 	new Parse.Query(CardObjectName).equalTo("code", code).first().then(function(parseCard) {
 		if (parseCard == null) {
