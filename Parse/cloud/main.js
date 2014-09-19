@@ -121,7 +121,8 @@ function parseRawValue(rawCard, propertyName, returnInteger) {
 var express = require('express');
 var app = express();
 app.set('views', 'cloud/views');
-app.set('view engine', 'ejs'); 
+app.set('view engine', 'ejs');
+app.set('jsonp callback', true);
 app.use(express.bodyParser()); 
 
 app.get('/', function(req, res) {
@@ -142,7 +143,7 @@ app.get('/status', function(req, res) {
 		if (configParam != null) {
 			timestamp = configParam.get("val");
 		}
-		res.json({
+		res.jsonp({
 			lastupdated : timestamp
 		});
 	});
@@ -155,7 +156,7 @@ app.get('/cards', function(req, res) {
 
 	var cardsArray = [];
 	getCards(0, cardsArray, function(results) {
-		res.json(results.map(sanitizeCard));
+		res.jsonp(results.map(sanitizeCard));
 	});
 });
 
@@ -192,13 +193,13 @@ function sanitizeCard(parsecard) {
 // Get a card's JSON data by its code (ex: "01024")
 app.get('/card/:code', function(req, res) {
 	res.header('Access-Control-Allow-Origin', "*");
-	
+
 	var code = req.params.code;
 	new Parse.Query(CardObjectName).equalTo("code", code).first().then(function(parseCard) {
 		if (parseCard == null) {
 			res.send(400);
 		} else {
-			res.json(sanitizeCard(parseCard));
+			res.jsonp(sanitizeCard(parseCard));
 		}
 	});
 });
