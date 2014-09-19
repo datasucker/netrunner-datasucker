@@ -34,6 +34,7 @@ function mapCard(rawCard) {
 		card.maxperdeck = parseRawValue(rawCard, "max", true);
 		card.quantity = parseRawValue(rawCard, "count", true);
 		card.set = parseRawValue(rawCard, "setname", false);
+		card.setcode = parseRawValue(rawCard, "setid", false);
 		card.side = parseRawValue(rawCard, "side", false);
 		card.strength = parseRawValue(rawCard, "strength", true);
 		card.subtype = parseRawValue(rawCard, "subtype", false);
@@ -111,8 +112,51 @@ app.get('/status', function(req, res) {
 	});
 });
 
-// TODO: parse has a limit of 1000 objects returned
-// ... we need to batch multiple requests before we break 1k cards
+app.get('/sets', function(req, res) {
+	res.header('Access-Control-Allow-Origin', "*");
+
+	// sets are compiled at request time to keep data fresh
+	// TODO: might want to store this result in a local cache and only rebuild when cards are rebuilt
+
+	var cardsArray = [];
+	getCards(0, cardsArray, function(results) {
+		
+		var setsByCode = new Object();
+		results.forEach(function(parseCard) {
+			var setcode = parseCard.get("setcode");
+			var setObject = setsByCode[setcode];
+			if (setObject == null) {
+				setObject = new Object();
+
+				setObject.name = parseCard.get("set");
+				setObject.cyclenumber = parseInt(parseCard.get("code").slice(-5, 2));
+				setObject.setcode = parseCard.get("setcode");
+
+				setsByCode[setcode] = setObject;
+				setObject.total = 0;
+			}
+			setObject.total++;
+		});
+
+		var sets = [];
+		var keys = Object.keys(setsByCode);
+		for (var i = 0; i < keys.length; i++) {
+			var val = setsByCode[keys[i]];
+			sets.push(val);
+		}
+		sets.sort(function(a, b) {
+			return a.setcode - b.setcode;
+		});
+		var setNumber = 1;
+		sets.forEach(function(set) {
+			set.number = setNumber;
+			setNumber++;
+		});
+		
+		res.jsonp(sets);
+	});
+});
+
 app.get('/cards', function(req, res) {
 	res.header('Access-Control-Allow-Origin', "*");
 
