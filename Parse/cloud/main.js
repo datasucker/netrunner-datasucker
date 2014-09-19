@@ -1,7 +1,6 @@
 
-// Update this if / when the URL to the JSON data changes.
-// TODO: Make this dynamic and have it easily updated through a web UI
-var dataURL = 'http://www.cardgamedb.com/deckbuilders/androidnetrunner/database/anjson-cgdb-adn18.jgz';
+// The current fallback URL: this can be configured via a DSConfig property of ( dataURL : __url__)
+var fallbackDataURL = 'http://www.cardgamedb.com/deckbuilders/androidnetrunner/database/anjson-cgdb-adn18.jgz';
 
 // set to false if you want imagesrc to hotlink directly to CardGameDB.com
 var sideLoadImages = true;
@@ -125,6 +124,28 @@ app.set('views', 'cloud/views');
 app.set('view engine', 'ejs'); 
 app.use(express.bodyParser()); 
 
+app.get('/', function(req, res) {
+	new Parse.Query("DSConfig").find().then(function(configParams) {
+		var params = new Object();
+		configParams.forEach(function(param) {
+			params[param.get("key")] = param.get("val");
+		});
+		res.render("index", params);	
+	});
+});
+
+app.get('/status', function(req, res) {
+	getConfigParam("lastupdated").then(function(configParam) {
+		var timestamp = "";
+		if (configParam != null) {
+			timestamp = configParam.get("val");
+		}
+		res.json({
+			lastupdated : timestamp
+		});
+	});
+});
+
 // TODO: parse has a limit of 1000 objects returned
 // ... we need to batch multiple requests before we break 1k cards
 app.get('/cards', function(req, res) {
@@ -197,33 +218,48 @@ Parse.Cloud.job("refreshData", function(request, status) {
 // include a "page" value to keep Parse from timing out...
 function fetchData(page, pageLength) {
 	var promise = new Parse.Promise();
-	Parse.Cloud.httpRequest({ url: dataURL }).then(function(response) {
+	var dataURL = null;
 
-		// strip off "cards = " from the front and ";" off the end
-		var allCards = JSON.parse(response.text.substr(8, response.text.length - 9));
-		// console.log(allCards.length);
-		if (pageLength > 0) {
-			cardsJSON = allCards.slice(pageLength * page, pageLength * (page + 1));
-		} else {
-			cardsJSON = allCards;
+	// check the config param for an updated dataURL
+	getConfigParam("dataURL").then(function(url) {
+		if (url != null) {
+			dataURL = url.get("val");
+		}
+		if (dataURL == null || dataURL.length == 0) {
+			dataURL = fallbackDataURL;
 		}
 
-		// cardsJSON is an array of card objects
-		var promises = [];
-		cardsJSON.forEach(function(rawCard) {
-			// map the CGDB json data to something sane...
-			var card = mapCard(rawCard);
-			promises.push(updateCardData(card));
+		Parse.Cloud.httpRequest({ url: dataURL }).then(function(response) {
+			// strip off "cards = " from the front and ";" off the end
+			var allCards = JSON.parse(response.text.substr(8, response.text.length - 9));
+			// console.log(allCards.length);
+			if (pageLength > 0) {
+				cardsJSON = allCards.slice(pageLength * page, pageLength * (page + 1));
+			} else {
+				cardsJSON = allCards;
+			}
+
+			// cardsJSON is an array of card objects
+			var promises = [];
+			cardsJSON.forEach(function(rawCard) {
+				// map the CGDB json data to something sane...
+				var card = mapCard(rawCard);
+				promises.push(updateCardData(card));
+			});
+
+			promises.push(updateConfigParam("lastupdated", Date.now().toString()));
+
+			// Return a new promise that is resolved when all of card queries / updates are finished
+			Parse.Promise.when(promises).then(function() {
+				promise.resolve();
+			});
+		},
+		function(error) {
+			promise.reject();
 		});
 
-		// Return a new promise that is resolved when all of card queries / updates are finished
-		Parse.Promise.when(promises).then(function() {
-			promise.resolve();
-		});
-	},
-	function(error) {
-		promise.reject();
-	});
+	})
+
 	return promise;
 }
 
@@ -271,6 +307,33 @@ function updateCardData(card) {
 	return promise;
 }
 
+function updateConfigParam(key, val) {
+	var promise = new Parse.Promise();
+	new Parse.Query("DSConfig").equalTo("key", key).first().then(function(configParam) {
+		if (configParam == null) {
+			configParam = new Parse.Object("DSConfig");
+			configParam.set("key", key);
+		}
+		configParam.set("val", val);
+		configParam.save(null, {
+			success: function(configParam) {
+				promise.resolve(configParam);
+			},
+			error: function(configParam, error) {
+				promise.resolve("Error Saving Param");
+			}
+		});
+	});
+	return promise;
+}
+
+function getConfigParam(key) {
+	var promise = new Parse.Promise();
+	new Parse.Query("DSConfig").equalTo("key", key).first().then(function(configParam) {
+		promise.resolve(configParam);
+	});
+	return promise;
+}
 
 // Try not to run this... it's a complete refresh of EVERY Card Image
 Parse.Cloud.job("refreshImages", function(request, status) {
