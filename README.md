@@ -3,11 +3,19 @@ Netrunner Datasuckers
 
 The primary goal of Datasuckers is to decentralize the storage of Netrunner card data. The dispersal of this data across various servers will remove the need for tools and utilities to embed any copyrighted work and thus hopefully avoid a legal confrontation.
 
+#### Required API
 Datasuckers must implement a standardized REST API:
 - `/cards` **=>** returns an Array of Card Objects
 - `/card/[code]` **=>** returns a single Card Object that matches [code]
 - `/sets` **=>** returns an Array of Set Objects
 - `/status` **=>** returns a Status Object
+
+#### Response Requirements
+All responses must have the the appropriate **[CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing)** header:
+```
+response.header['Access-Control-Allow-Origin'] = '*'
+```
+In addition, all responses should follow the **[JSONP](http://en.wikipedia.org/wiki/JSONP)** usage pattern.
 
 #### Card Objects
 Datasuckers must return JSON card objects that follow this naming and type convention:
