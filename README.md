@@ -19,30 +19,30 @@ In addition, all responses should follow the **[JSONP](http://en.wikipedia.org/w
 
 #### Card Objects
 Datasuckers must return JSON card objects that follow this naming and type convention:
-- card.code (string => last 5 digits of the GUIDs, ex: "01023" => set 01, card 023)
-- card.title (string)
-- card.agendapoints (integer)
-- card.baselink (integer)
-- card.cost (integer)
-- card.faction (string)
-- card.factioncost (integer)
-- card.illustrator (string)
-- card.imagesrc (string)
-- card.influencelimit (integer)
-- card.memoryunits (integer)
-- card.mindecksize (integer)
-- card.number (integer => number within the set)
-- card.maxperdeck (integer)
-- card.quantity (integer)
-- card.set (string)
-- card.setcode (string)
-- card.side (string => "Runner" or "Corp")
-- card.strength (integer)
-- card.subtype (string)
-- card.text (string)
-- card.trash (integer)
-- card.type (string)
-- card.uniqueness (boolean)
+- `card.agendapoints` (integer)
+- `card.baselink` (integer)
+- `card.code` (string => last 5 digits of the GUIDs, ex: "01023" => set 01, card 023)
+- `card.cost` (integer)
+- `card.faction` (string)
+- `card.factioncost` (integer)
+- `card.illustrator` (string)
+- `card.imagesrc` (string)
+- `card.influencelimit` (integer)
+- `card.memoryunits` (integer)
+- `card.mindecksize` (integer)
+- `card.number` (integer => number within the set)
+- `card.maxperdeck` (integer)
+- `card.quantity` (integer)
+- `card.set` (string)
+- `card.setcode` (string)
+- `card.side` (string => "Runner" or "Corp")
+- `card.strength` (integer)
+- `card.subtype` (string)
+- `card.text` (string)
+- `card.title` (string)
+- `card.trash` (integer)
+- `card.type` (string)
+- `card.uniqueness` (boolean)
 ```
 // Example Card Object for 'Datasucker'
 {
@@ -73,11 +73,11 @@ Datasuckers must return JSON card objects that follow this naming and type conve
 
 #### Set Objects
 Datasuckers must return JSON set objects with this convention:
-- set.name (string)
-- set.cyclenumber (integer)
-- set.setcode (string => matches card.setcode)
-- set.total (integer)
-- set.number (integer => sort order within all of the sets)
+- `set.cyclenumber` (integer)
+- `set.name` (string)
+- `set.number` (integer => sort order within all of the sets)
+- `set.setcode` (string => matches card.setcode)
+- `set.total` (integer => number of cards in this set)
 ```
 // Example Set Object for the Core set
 {
@@ -100,7 +100,7 @@ Datasuckers must return JSON set objects with this convention:
 
 #### Status Object
 The /status endpoint returns a JSON object:
-- lastupdated (string => timestamp, milliseconds since the epoch)
+- `lastupdated` (string => timestamp, milliseconds since the epoch)
 ```
 // Example Object return from the /status endpoint
 {
