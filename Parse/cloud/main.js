@@ -1,4 +1,3 @@
-
 // The current fallback URL: this can be configured via a DSConfig property of ( dataURL : __url__)
 var fallbackDataURL = 'http://www.cardgamedb.com/deckbuilders/androidnetrunner/database/anjson-cgdb-adn18.jgz';
 
@@ -7,6 +6,12 @@ var sideLoadImages = true;
 
 // Change this to whatever you want to call the Data Objects in Parse (not exceptionally important)
 var CardObjectName = "NRCard";
+
+var ConfigObjectName = "DSConfig";
+var DATA_URL_KEY = "dataURL";
+var ACCESS_CODE_KEY = "accessCode";
+var CLONE_LOCKPICK_KEY = "cloneLockpick";
+var LAST_UPDATED_KEY = "lastupdated";
 
 // Map the obscure / terrible property names of the raw JSON data to better types and name conventions
 function mapCard(rawCard) {
@@ -49,7 +54,7 @@ function mapCard(rawCard) {
 // encode(decode) html text into html entity
 var decodeHtmlEntity = function(str) {
   return str.replace(/&#(\d+);/g, function(match, dec) {
-    return String.fromCharCode(dec);
+	return String.fromCharCode(dec);
   });
 };
 
@@ -80,16 +85,18 @@ function parseRawValue(rawCard, propertyName, returnInteger) {
 
 
 // The building blocks!
-
+var MD5 = require('cloud/md5');
 var express = require('express');
+var parseExpressHttpsRedirect = require('parse-express-https-redirect');
 var app = express();
 app.set('views', 'cloud/views');
 app.set('view engine', 'ejs');
 app.set('jsonp callback', true);
 app.use(express.bodyParser()); 
+app.use(parseExpressHttpsRedirect());
 
 app.get('/', function(req, res) {
-	new Parse.Query("DSConfig").find().then(function(configParams) {
+	new Parse.Query(ConfigObjectName).find().then(function(configParams) {
 		var params = new Object();
 		configParams.forEach(function(param) {
 			params[param.get("key")] = param.get("val");
@@ -101,7 +108,7 @@ app.get('/', function(req, res) {
 app.get('/status', function(req, res) {
 	res.header('Access-Control-Allow-Origin', "*");
 
-	getConfigParam("lastupdated").then(function(configParam) {
+	getConfigParam(LAST_UPDATED_KEY).then(function(configParam) {
 		var timestamp = "";
 		if (configParam != null) {
 			timestamp = configParam.get("val");
@@ -152,7 +159,7 @@ app.get('/sets', function(req, res) {
 			set.number = setNumber;
 			setNumber++;
 		});
-		
+
 		res.jsonp(sets);
 	});
 });
@@ -210,6 +217,86 @@ app.get('/card/:code', function(req, res) {
 	});
 });
 
+app.get('/configure', function(req, res) {
+	res.redirect('/');
+});
+
+app.post('/configure', function(req, res) {
+	var accessCode = req.body.code;
+	getConfigParam(ACCESS_CODE_KEY).then(function(ac) {
+		if (ac != null && (accessCode == null || accessCode == '')) {
+			res.redirect('/');
+		} else {
+			var storedAccessCode;
+			if (ac != null) {
+				storedAccessCode = ac.get('val');
+			}
+
+			if (ac == null || MD5.hashString(accessCode) == storedAccessCode) {
+
+				if (req.body.updateConfiguration != null) {
+					var dataURL = req.body.dataURL;
+					var lockpick = req.body.lockpick;
+					var newAccessCode = req.body.newCode;
+
+					updateConfigParam(DATA_URL_KEY, dataURL).then(function() {
+						updateConfigParam(ACCESS_CODE_KEY, MD5.hashString(newAccessCode)).then(function() {
+							updateConfigParam(CLONE_LOCKPICK_KEY, lockpick).then(function() {
+								new Parse.Query(CardObjectName).count().then(function(count) {
+									res.render('configure', {
+										message: 'Configuration Saved',
+										code: newAccessCode,
+										dataURL: dataURL,
+										lockpick: lockpick,
+										cardCount: count,
+									});
+								});
+
+							});
+						});
+					});
+
+				} else if (req.body.clearData != null) {
+
+					clearData().then(function() {
+						getConfigParam(DATA_URL_KEY).then(function(dataURL) {
+							getConfigParam(CLONE_LOCKPICK_KEY).then(function(lockpick) {
+								new Parse.Query(CardObjectName).count().then(function(count) {
+									res.render('configure', {
+										message: 'Data Cleared',
+										code: accessCode != null ? accessCode : '',
+										dataURL: dataURL == null ? fallbackDataURL : dataURL.get('val'),
+										lockpick: lockpick == null ? '' : lockpick.get('val'),
+										cardCount: count,
+									});
+								});
+							});
+						});
+					});
+
+				} else {
+					getConfigParam(DATA_URL_KEY).then(function(dataURL) {
+						getConfigParam(CLONE_LOCKPICK_KEY).then(function(lockpick) {
+							new Parse.Query(CardObjectName).count().then(function(count) {
+								res.render('configure', {
+									code: accessCode != null ? accessCode : '',
+									dataURL: dataURL == null ? fallbackDataURL : dataURL.get('val'),
+									lockpick: lockpick == null ? '' : lockpick.get('val'),
+									cardCount: count,
+								});
+							});
+						});
+					});
+				}
+			} else {
+				res.redirect('/');
+			}
+		}
+	});
+
+});
+
+
 // Attach the Express app to Cloud Code.
 app.listen();
 
@@ -220,52 +307,91 @@ app.listen();
 Parse.Cloud.job("refreshData", function(request, status) {
 	Parse.Cloud.useMasterKey();
 
-	fetchData(0, 0).then(function() {
-		status.success("Finished fetching and updating cards");
-	}, function(error) {
-		status.error("Error fetching and updating cards");
-	});	
+	// 
+	getConfigParam(CLONE_LOCKPICK_KEY).then(function(lockpickKey) {
+		if (lockpickKey == null || lockpickKey.get('val') == null || lockpickKey.get('val') == '') {
+			fetchFFGData().then(function() {
+				status.success("Finished fetching and updating cards from FFG");
+			}, function(error) {
+				status.error("Error fetching and updating cards from FFG");
+			});
+		} else {
+			var lockpickValue = lockpickKey.get('val');
+			cloneDatasucker(lockpickValue).then(function() {
+				status.success("Finished cloning cards");
+			}, function(error) {
+				status.error("Error cloning cards");
+			});
+		}
+	});
 });
+
+function clearData(lockpickKey) {
+	var promise = new Parse.Promise();
+	var cardsArray = [];
+	getCards(0, cardsArray, function(results) {
+		var promises = [];
+		results.forEach(function(card) {
+			promises.push(card.destroy());
+		});
+		Parse.Promise.when(promises).then(function() {
+			promise.resolve();
+		});
+	});
+	return promise;
+}
+
+function cloneDatasucker(lockpickKey) {
+	var promise = new Parse.Promise();
+	console.log("Cloning: " + lockpickKey);
+	Parse.Cloud.httpRequest({ url: "https://lockpick.parseapp.com/datasucker/" + lockpickKey }).then(function(response) {	
+		var lockpickData = JSON.parse(response.text);
+		var datasuckerURL = lockpickData.url.replace(/\/$/, "");
+		console.log("Datasucker URL to Clone: " + datasuckerURL);
+		Parse.Cloud.httpRequest({ url: datasuckerURL + "/cards" }).then(function(response) {
+			var cardsJSON = JSON.parse(response.text);
+			console.log("Fetched "+ cardsJSON.length + " cards from clone");
+			processCardData(cardsJSON, false).then(function() {
+				promise.resolve();
+			});
+		},
+		function(error) {
+			promise.reject();
+		});
+	},
+	function(error) {
+		promise.reject();
+	});
+	return promise;
+}
 
 // this downloads the latest JSON data from CardGameDB and starts the parsing process
 // include a "page" value to keep Parse from timing out...
-function fetchData(page, pageLength) {
+function fetchFFGData() {
+	console.log("Fetching FFG Data...");
 	var promise = new Parse.Promise();
 	var dataURL = null;
 
 	// check the config param for an updated dataURL
-	getConfigParam("dataURL").then(function(url) {
+	getConfigParam(DATA_URL_KEY).then(function(url) {
 		if (url != null) {
 			dataURL = url.get("val");
 		}
 		if (dataURL == null || dataURL.length == 0) {
 			dataURL = fallbackDataURL;
 		}
+		console.log("Fetching FFG Data URL: " + dataURL);
 
 		Parse.Cloud.httpRequest({ url: dataURL }).then(function(response) {
 			// strip off "cards = " from the front and ";" off the end
-			var allCards = JSON.parse(response.text.substr(8, response.text.length - 9));
-			// console.log(allCards.length);
-			if (pageLength > 0) {
-				cardsJSON = allCards.slice(pageLength * page, pageLength * (page + 1));
-			} else {
-				cardsJSON = allCards;
-			}
+			var cardsJSON = JSON.parse(response.text.substr(8, response.text.length - 9));
 
-			// cardsJSON is an array of card objects
-			var promises = [];
-			cardsJSON.forEach(function(rawCard) {
-				// map the CGDB json data to something sane...
-				var card = mapCard(rawCard);
-				promises.push(updateCardData(card));
-			});
+			console.log("FFG Data JSON Card Count: " + cardsJSON.length);
 
-			promises.push(updateConfigParam("lastupdated", Date.now().toString()));
-
-			// Return a new promise that is resolved when all of card queries / updates are finished
-			Parse.Promise.when(promises).then(function() {
+			processCardData(cardsJSON, true).then(function() {
 				promise.resolve();
 			});
+
 		},
 		function(error) {
 			promise.reject();
@@ -273,6 +399,25 @@ function fetchData(page, pageLength) {
 
 	})
 
+	return promise;
+}
+
+function processCardData(cardsJSON, mapCards) {
+	var promise = new Parse.Promise();
+	// cardsJSON is an array of card objects
+	var promises = [];
+	cardsJSON.forEach(function(cardJSON) {
+		// map the CGDB json data to something sane...
+		if (mapCards) {
+			cardJSON = mapCard(cardJSON);
+		}
+		promises.push(updateCardData(cardJSON));
+	});
+	promises.push(updateConfigParam(LAST_UPDATED_KEY, Date.now().toString()));
+	// Return a new promise that is resolved when all of card queries / updates are finished
+	Parse.Promise.when(promises).then(function() {
+		promise.resolve();
+	});
 	return promise;
 }
 
@@ -322,9 +467,9 @@ function updateCardData(card) {
 
 function updateConfigParam(key, val) {
 	var promise = new Parse.Promise();
-	new Parse.Query("DSConfig").equalTo("key", key).first().then(function(configParam) {
+	new Parse.Query(ConfigObjectName).equalTo("key", key).first().then(function(configParam) {
 		if (configParam == null) {
-			configParam = new Parse.Object("DSConfig");
+			configParam = new Parse.Object(ConfigObjectName);
 			configParam.set("key", key);
 		}
 		configParam.set("val", val);
@@ -342,7 +487,7 @@ function updateConfigParam(key, val) {
 
 function getConfigParam(key) {
 	var promise = new Parse.Promise();
-	new Parse.Query("DSConfig").equalTo("key", key).first().then(function(configParam) {
+	new Parse.Query(ConfigObjectName).equalTo("key", key).first().then(function(configParam) {
 		promise.resolve(configParam);
 	});
 	return promise;
@@ -377,7 +522,7 @@ function fetchImages(cards, finished) {
 function fetchImage(card, saveCard, callback) {
 	var url = card.get('imagesrc');
 	Parse.Cloud.httpRequest({ url: url }).then(function(response) {
-  		var fileName = card.get('code') + '.png';
+		var fileName = card.get('code') + '.png';
 		var file = new Parse.File(fileName, {base64: response.buffer.toString('base64', 0, response.buffer.length)}, 'image/png');
 		file.save().then(function(file) {
 			if (file) {

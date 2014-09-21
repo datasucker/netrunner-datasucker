@@ -6,8 +6,29 @@
 	 
 		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 		<link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+		<link rel="stylesheet" href="/css/datasucker.css" type="text/css">
+		<link href='http://fonts.googleapis.com/css?family=Exo:200,400,600,600italic,400italic,200italic' rel='stylesheet' type='text/css'>
 	</head>
 	<body>
-		<div align="center"><strong>Last Updated:</strong> <%= new Date(parseInt(lastupdated)) %></div>
+		<h1>Datasucker</h1>
+		
+		<% if (typeof lastupdated != 'undefined' && lastupdated != null) { %>
+		<div align="center"><strong>LAST UPDATED:</strong> <%= new Date(parseInt(lastupdated)) %></div>
+		<% } else { %>
+		<div align="center"><strong>Empty Datasucker. Synchronization Required.</strong></div>
+		<% } %>
+
+		<div align="center">
+			<form action="configure" method="POST">
+				<% if (typeof accessCode != 'undefined' && accessCode != null) { %>
+				<strong>ACCESS CODE:</strong> <input type="textinput" name="code">
+				<input type="submit" name="submit" value="CONFIGURE" />
+				<% } else { %>
+				<input type="submit" name="submit" value="CONFIGURE DATASUCKER" />
+				<% } %>
+			</form>
+		</div>
+
 	</body>
 </html>

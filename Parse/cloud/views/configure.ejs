@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Datasucker</title>
+	 
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+		<link rel="stylesheet" href="/css/datasucker.css" type="text/css">
+		<link href='http://fonts.googleapis.com/css?family=Exo:200,400,600,600italic,400italic,200italic' rel='stylesheet' type='text/css'>
+	</head>
+	<body>
+		<h1>Datasucker Configuration</h1>
+		
+		<% if (typeof message != 'undefined' && message != null) { %>
+		<div align="center"><em><%= message %></em></div>
+		<% } %>
+
+		<hr />
+
+		<div align="center">
+			<form action="configure" method="POST">
+			<input type="hidden" name="code" value="<%= code %>">
+
+				<table>
+					<tr>
+						<td align="right"><label><strong>ACCESS CODE:</strong></label></td>
+						<td><input type="textinput" name="newCode" value="<%= code %>"></td>
+					</tr>
+					<tr>
+						<td align="right"><label><strong>CLONE LOCKPICK:</strong></label></td>
+						<td><input type="textinput" name="lockpick" value="<%= lockpick %>"></td>
+					</tr>
+					<% if (lockpick != '') { %>
+					<tr>
+						<td></td>
+						<td><em><small><a href="https://lockpick.parseapp.com/datasucker/<%= lockpick %>/status">Datasucker Status</a></small></em></td>
+					</tr>
+					<% } %>
+					<tr>
+						<td align="right"><label><strong>FFG DATA URL:</strong></label></td>
+						<td><input type="textinput" name="dataURL" size="45" value="<%= dataURL %>"></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td><input type="submit" name="updateConfiguration" value="SAVE CONFIGURATION" id="submit" /></td>
+					</tr>
+
+					<tr>
+						<td colspan="2"><hr /></td>
+					</tr>
+
+					<tr>
+						<td align="right"><label><strong><%= cardCount %> Cards: </strong></label></td>
+						<td><input type="submit" name="clearData" value="CLEAR DATA" /></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td><em><small>This may timeout after 20 seconds. Simply run it again.</small></em></td>
+					</tr>
+
+
+				</table>
+			</form>
+		</div>
+
+		
+
+	</body>
+</html>
