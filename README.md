@@ -1,7 +1,7 @@
 Netrunner Datasuckers
 =====================
 
-The primary goal of Datasuckers is to decentralize the storage of Netrunner card data. The dispersal of this data across various servers will remove the need for tools and utilities to embed any copyrighted work and thus hopefully avoid a legal confrontation.
+The primary goal of Datasuckers is to decentralize the storage of Netrunner card data. The dispersal of this data across various servers will remove the need for tools and utilities to embed any copyrighted work.
 
 #### Required API
 Datasuckers must implement a standardized REST API:
