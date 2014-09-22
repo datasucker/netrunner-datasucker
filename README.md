@@ -100,11 +100,11 @@ Datasuckers must return JSON set objects with this convention:
 
 #### Status Object
 The /status endpoint returns a JSON object:
-- `lastupdated` (string => timestamp, milliseconds since the epoch)
+- `lastupdated` (string => ISO8601 timestamp)
 ```
 // Example Object return from the /status endpoint
 {
-  "lastupdated": "1411257633393"
+  "lastupdated": "2014-09-22T22:12:52.295Z"
 }
 ```
 The **lastupdated** value will help the Datasucker network identify stale data in the future.

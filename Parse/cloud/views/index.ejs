@@ -14,7 +14,7 @@
 		<h1>Datasucker</h1>
 		
 		<% if (typeof lastupdated != 'undefined' && lastupdated != null) { %>
-		<div align="center"><strong>LAST UPDATED:</strong> <%= new Date(parseInt(lastupdated)) %></div>
+		<div align="center"><strong>LAST UPDATED:</strong> <%= lastupdated %></div>
 		<% } else { %>
 		<div align="center"><strong>Empty Datasucker. Synchronization Required.</strong></div>
 		<% } %>

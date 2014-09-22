@@ -413,7 +413,7 @@ function processCardData(cardsJSON, mapCards) {
 		}
 		promises.push(updateCardData(cardJSON));
 	});
-	promises.push(updateConfigParam(LAST_UPDATED_KEY, Date.now().toString()));
+	promises.push(updateConfigParam(LAST_UPDATED_KEY, (new Date()).toISOString()));
 	// Return a new promise that is resolved when all of card queries / updates are finished
 	Parse.Promise.when(promises).then(function() {
 		promise.resolve();
