@@ -152,7 +152,10 @@ app.get('/sets', function(req, res) {
 			sets.push(val);
 		}
 		sets.sort(function(a, b) {
-			return a.setcode - b.setcode;
+			if (a.cyclenumber == b.cyclenumber) {
+				return a.setcode - b.setcode;	
+			}
+			return a.cyclenumber - b.cyclenumber;
 		});
 		var setNumber = 1;
 		sets.forEach(function(set) {
