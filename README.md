@@ -24,15 +24,18 @@ Datasuckers must return JSON card objects that follow this naming and type conve
 - `card.code` (string => last 5 digits of the GUIDs, ex: "01023" => set 01, card 023)
 - `card.cost` (integer)
 - `card.faction` (string)
+- `card.flavor` (string)
 - `card.factioncost` (integer)
-- `card.illustrator` (string)
-- `card.imagesrc` (string)
+- `card.images` (array => may be more than one if the card has alternate art, primary art is index 0)
+  - `illustrator` (string)
+  - `src` (string)
 - `card.influencelimit` (integer => only used if card is an identity)
 - `card.memoryunits` (integer => only used if card is a runner program)
 - `card.mindecksize` (integer => only used if card is an identity)
 - `card.number` (integer => number within the set)
 - `card.maxperdeck` (integer => how many of this card are allowed in a deck)
 - `card.quantity` (integer => how many of this card are in the set/pack)
+- `card.regex` (string => regular expression pattern for matching cards with varying text)
 - `card.set` (string => name of the set/datapack)
 - `card.setcode` (string => internal code for set, not suitable for sorting purposes)
 - `card.side` (string => "Runner" or "Corp")
@@ -43,30 +46,38 @@ Datasuckers must return JSON card objects that follow this naming and type conve
 - `card.trash` (integer)
 - `card.type` (string)
 - `card.uniqueness` (boolean)
+- `card.url` (string => card game DB spoiler URL)
 ```
 // Example Card Object for 'Datasucker'
 {
-  "agendapoints": 0,
-  "baselink": 0,
   "code": "01008",
   "cost": 1,
   "faction": "Anarch",
   "factioncost": 1,
-  "illustrator": "<redacted>",
-  "imagesrc": "http://www.somewhere.com/images/01008.png",
   "maxperdeck": 3,
   "memoryunits": 1,
   "number": 8,
   "quantity": 2,
+  "regex": "(Datasuckers?|Data Suckers?|01008)",
   "set": "Core",
   "setcode": "223",
   "side": "Runner",
-  "strength": 0,
   "subtype": "Virus",
   "text": "<redacted>",
   "title": "Datasucker",
   "type": "Program",
-  "uniqueness": false
+  "uniqueness": false,
+  "url": "http:\/\/www.cardgamedb.com\/index.php\/netrunner\/android-netrunner-card-spoilers\/_\/datasucker-core",
+  "images": [
+    {
+      "src": "<redacted>",
+      "illustrator": "Chelsea Conlin"
+    },
+    {
+      "src": "<redacted>",
+      "illustrator": "Ed Mattinian"
+    }
+  ]
 }
 ```
 *Some card properties are optional if not applicable to the card type.*
@@ -111,7 +122,7 @@ The **lastupdated** value will help the Datasucker network identify stale data i
 
 
 #### TLDR
-The Datasucker API represents the aboslutely smallest possible API needed to power external Apps.
+The Datasucker API represents the aboslutely smallest possible API needed to power the majority of external Apps.
 Any search feature, sorting, querying, sub-queries, etc. must be built external to the Datasucker API.
 
 This repository holds what you need to spin up your own Datasucker that is self-maintaining and can clone itself from other Datasuckers.
