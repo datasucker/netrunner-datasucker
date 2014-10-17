@@ -5,4 +5,9 @@
   "description": "Test suite for checking that a target Datasucker satisfies the API specification.",
   "homepage": "https://github.com/datasucker/netrunner-datasucker",
   "license": "MIT",
+  "dependencies": {
+    "karma": "^0.12.24",
+    "karma-jasmine": "^0.2.0",
+    "karma-phantomjs-launcher": "^0.1.4"
+  }
 }
