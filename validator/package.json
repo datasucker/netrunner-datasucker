@@ -1,0 +1,8 @@
+{
+	"name": "netrunner-datasucker-validator",
+	"private": true,
+	"version": "0.0.1",
+	"description": "Test suite for checking that a target Datasucker satisfies the API specification.",
+	"homepage": "https://github.com/datasucker/netrunner-datasucker",
+	"license": "MIT"
+}
