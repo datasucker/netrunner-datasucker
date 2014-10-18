@@ -5,10 +5,10 @@ describe('The datasucker at ' + targetBaseUrl, function() {
         var cachedData = $.ajax(targetBaseUrl + apiPath, {
             async: false,
             dataType: 'json',
-        }).responseJSON;
+        });
 
         return function() {
-            data = cachedData;
+            data = JSON.parse(cachedData.responseText);
         };
     }
 
