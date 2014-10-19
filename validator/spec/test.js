@@ -1,3 +1,5 @@
+console.log('Validating datasucker at base URL', targetBaseUrl);
+
 describe('The datasucker at ' + targetBaseUrl, function() {
 
     var data;
