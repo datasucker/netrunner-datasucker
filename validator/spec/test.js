@@ -23,4 +23,16 @@ describe('The datasucker at ' + targetBaseUrl, function() {
             expect(lastupdatedRestringified).toEqual(data.lastupdated);
         });
     });
+
+    describe('has a /cards endpoint', function() {
+        beforeEach(getData('/cards'));
+
+        it('which returns an array', function() {
+            expect(_.isArray(data)).toBe(true);
+        });
+
+        it('which returns at least one card', function() {
+            expect(data.length).toBeGreaterThan(0);
+        });
+    });
 });
