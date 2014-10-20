@@ -70,11 +70,11 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
     describe('has a /cards endpoint which', function() {
         beforeEach(getData('/cards'));
 
-        it('returns an array', function() {
+        it('is an array', function() {
             data.should.be.an.Array;
         });
 
-        it('returns at least one card', function() {
+        it('contains at least one card', function() {
             data.length.should.be.greaterThan(0);
         });
     });
