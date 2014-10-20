@@ -27,9 +27,10 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
     function getData(apiPath) {
         return function(done) {
             makeCachedRequest(testParams.targetBaseUrl + apiPath, function(error, body) {
-                if(!error) {
-                    data = JSON.parse(body);
+                if(error) {
+                    throw error;
                 }
+                data = JSON.parse(body);
                 done();
             });
         };
