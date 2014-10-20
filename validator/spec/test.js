@@ -6,21 +6,30 @@ var testParams = require('../test-params');
 
 console.log('Validating datasucker at base URL', testParams.targetBaseUrl);
 
+var makeCachedRequest = (function() {
+    var cachedData = {};
+    return function(url, callback) {
+        if(cachedData[url]) {
+            _.defer(callback, false, cachedData[url]);
+            return;
+        }
+
+        request(url, function(error, response, body) {
+            cachedData[url] = body;
+            callback(error, cachedData[url]);
+        });
+    };
+})();
+
 describe('The datasucker at ' + testParams.targetBaseUrl, function() {
 
     var data;
     function getData(apiPath) {
-        var cachedData;
-
         return function(done) {
-            request(testParams.targetBaseUrl + apiPath, function(error, response, body) {
+            makeCachedRequest(testParams.targetBaseUrl + apiPath, function(error, body) {
                 if(!error) {
-                    cachedData = body;
-                    data = JSON.parse(cachedData);
-                } else {
-                    cachedData = undefined;
+                    data = JSON.parse(body);
                 }
-
                 done();
             });
         };
