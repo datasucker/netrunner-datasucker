@@ -1,5 +1,6 @@
 var request = require('request');
 var should = require('should');
+var _ = require('underscore');
 
 var testParams = require('../test-params');
 
