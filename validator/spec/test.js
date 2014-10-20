@@ -67,14 +67,14 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
         });
     });
 
-    describe('has a /cards endpoint', function() {
+    describe('has a /cards endpoint which', function() {
         beforeEach(getData('/cards'));
 
-        it('which returns an array', function() {
+        it('returns an array', function() {
             data.should.be.an.Array;
         });
 
-        it('which returns at least one card', function() {
+        it('returns at least one card', function() {
             data.length.should.be.greaterThan(0);
         });
     });
