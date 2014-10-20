@@ -1,16 +1,18 @@
 var request = require('request');
 var should = require('should');
 
-console.log('Validating datasucker at base URL', targetBaseUrl);
+var testParams = require('../test-params');
 
-describe('The datasucker at ' + targetBaseUrl, function() {
+console.log('Validating datasucker at base URL', testParams.targetBaseUrl);
+
+describe('The datasucker at ' + testParams.targetBaseUrl, function() {
 
     var data;
     function getData(apiPath) {
         var cachedData;
 
         return function(done) {
-            request(targetBaseUrl + apiPath, function(error, response, body) {
+            request(testParams.targetBaseUrl + apiPath, function(error, response, body) {
                 if(!error) {
                     cachedData = body;
                     data = JSON.parse(cachedData);
