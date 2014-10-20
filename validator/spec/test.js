@@ -4,10 +4,6 @@ var _ = require('underscore');
 
 var testParams = require('../test-params');
 
-_(testParams).extend({
-    targetBaseUrl: process.env.npm_config_target,
-});
-
 console.log('Validating datasucker at base URL', testParams.targetBaseUrl);
 
 var makeCachedRequest = (function() {
