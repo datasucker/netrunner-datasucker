@@ -13,6 +13,7 @@
     "underscore": "^1.7.0"
   },
   "scripts": {
-    "autotest": "./node_modules/.bin/supervisor -n exit -- node_modules/.bin/mocha spec"
+    "autotest": "./node_modules/.bin/supervisor -n exit -- node_modules/.bin/mocha spec",
+    "test": "./node_modules/.bin/mocha spec"
   }
 }
