@@ -49,6 +49,9 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
         ]).each(function(apiPath) {
             it('the ' + apiPath + ' endpoint', function(done) {
                 request(testParams.targetBaseUrl + apiPath, function(error, response) {
+                    if(error) {
+                        throw error;
+                    }
                     var headerKey = _(response.headers).chain().keys().find(function(key) {
                         return key.match(/Access-Control-Allow-Origin/i);
                     }).value();
