@@ -37,15 +37,22 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
     }
 
     describe('adds the CORS header to', function() {
-        it('the /status endpoint', function(done) {
-            request(testParams.targetBaseUrl + '/status', function(error, response) {
-                var headerKey = _(response.headers).chain().keys().find(function(key) {
-                    return key.match(/Access-Control-Allow-Origin/i);
-                }).value();
-                (headerKey === null).should.be.false;
+        _([
+            '/status',
+            '/cards',
+            '/card/01008',
+            '/sets',
+        ]).each(function(apiPath) {
+            it('the ' + apiPath + ' endpoint', function(done) {
+                request(testParams.targetBaseUrl + apiPath, function(error, response) {
+                    var headerKey = _(response.headers).chain().keys().find(function(key) {
+                        return key.match(/Access-Control-Allow-Origin/i);
+                    }).value();
+                    (headerKey === null).should.be.false;
 
-                response.headers.should.have.property(headerKey, '*');
-                done();
+                    response.headers.should.have.property(headerKey, '*');
+                    done();
+                });
             });
         });
     });
