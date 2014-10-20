@@ -3,23 +3,9 @@ var should = require('should');
 var _ = require('underscore');
 
 var testParams = require('../test-params');
+var makeCachedRequest = require('../helpers').makeCachedRequest;
 
 console.log('Validating datasucker at base URL', testParams.targetBaseUrl);
-
-var makeCachedRequest = (function() {
-    var cachedData = {};
-    return function(url, callback) {
-        if(cachedData[url]) {
-            _.defer(callback, false, cachedData[url]);
-            return;
-        }
-
-        request(url, function(error, response, body) {
-            cachedData[url] = body;
-            callback(error, cachedData[url]);
-        });
-    };
-})();
 
 describe('The datasucker at ' + testParams.targetBaseUrl, function() {
 
