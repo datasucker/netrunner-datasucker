@@ -57,16 +57,6 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
         });
     });
 
-    describe('has a /status endpoint', function() {
-        beforeEach(getData('/status'));
-
-        it('which contains a "lastupdated" full ISO8601 timestamp', function() {
-            var lastupdatedRestringified = new Date(data.lastupdated).toISOString();
-            lastupdatedRestringified.should.not.equal('Invalid Date');
-            lastupdatedRestringified.should.equal(data.lastupdated);
-        });
-    });
-
     describe('has a /cards endpoint which', function() {
         beforeEach(getData('/cards'));
 
@@ -122,6 +112,16 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
             it('has a valid ' + key + ' property', function() {
                 data.should.have.property(key).which.match(matcher);
             });
+        });
+    });
+
+    describe('has a /status endpoint', function() {
+        beforeEach(getData('/status'));
+
+        it('which contains a "lastupdated" full ISO8601 timestamp', function() {
+            var lastupdatedRestringified = new Date(data.lastupdated).toISOString();
+            lastupdatedRestringified.should.not.equal('Invalid Date');
+            lastupdatedRestringified.should.equal(data.lastupdated);
         });
     });
 });
