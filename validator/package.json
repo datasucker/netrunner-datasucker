@@ -9,8 +9,10 @@
     "mocha": "^1.21.5",
     "request": "^2.45.0",
     "should": "^4.1.0",
-    "supervisor": "^0.6.0",
     "underscore": "^1.7.0"
+  },
+  "devDependencies": {
+    "supervisor": "^0.6.0"
   },
   "scripts": {
     "autotest": "./node_modules/.bin/supervisor -n exit -- node_modules/.bin/mocha spec",
