@@ -115,6 +115,18 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
         });
     });
 
+    describe('has a /sets endpoint which', function() {
+        beforeEach(getData('/sets'));
+
+        it('is an array', function() {
+            data.should.be.an.Array;
+        });
+
+        it('contains at least one set', function() {
+            data.length.should.be.greaterThan(0);
+        });
+    });
+
     describe('has a /status endpoint', function() {
         beforeEach(getData('/status'));
 
