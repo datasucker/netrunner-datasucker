@@ -82,26 +82,28 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
     describe('has the Datasucker card (/card/01008 endpoint) which', function() {
         beforeEach(getData('/card/01008'));
 
-        var mandatoryKeys = [
-            'code',           // (/string => last 5 digits of the GUIDs, ex: "01023" => set 01, card 023)
-            'faction',        // (/string)
-            'factioncost',    // (/integer)
-            'images',         // (/array => may be more than one if the card has alternate art, primary art is index 0)
-               //illustrator, // (/string)
-               //src,         // (/string)
-            'number',         // (/integer => number within the set)
-            'maxperdeck',     // (/integer => how many of this card are allowed in a deck)
-            'quantity',       // (/integer => how many of this card are in the set/pack)
-            'regex',          // (/string => regular expression pattern for matching cards with varying text)
-            'set',            // (/string => name of the set/datapack)
-            'setcode',        // (/string => internal code for set, not suitable for sorting purposes)
-            'side',           // (/string => "Runner" or "Corp")
-            'subtype',        // (/string => if set, list of card subtypes separated by ' - ')
-            'text',           // (/string)
-            'title',          // (/string)
-            'type',           // (/string)
-            'url',            // (/string => card game DB spoiler URL)
-        ];
+        var shouldBeString  = function(it) { return it.should.be.a.String; };
+        var shouldBeInteger = function(it) { return it.should.be.a.Number; };
+        var shouldBeArray   = function(it) { return it.should.be.an.Array; };
+
+        var mandatoryKeys = {
+            'code': function(it) { return it.should.be.a.String.and.match(/^\d{5}$/); },
+            'faction':     shouldBeString,  // (/string)
+            'factioncost': shouldBeInteger, // (/integer)
+            'images':      shouldBeArray,   // (/array => may be more than one if the card has alternate art, primary art is index 0)
+            'number':      shouldBeInteger, // (/integer => number within the set)
+            'maxperdeck':  shouldBeInteger, // (/integer => how many of this card are allowed in a deck)
+            'quantity':    shouldBeInteger, // (/integer => how many of this card are in the set/pack)
+            'regex':       shouldBeString,  // (/string => regular expression pattern for matching cards with varying text)
+            'set':         shouldBeString,  // (/string => name of the set/datapack)
+            'setcode':     shouldBeString,  // (/string => internal code for set, not suitable for sorting purposes)
+            'side':        shouldBeString,  // (/string => "Runner" or "Corp")
+            'subtype':     shouldBeString,  // (/string => if set, list of card subtypes separated by ' - ')
+            'text':        shouldBeString,  // (/string)
+            'title':       shouldBeString,  // (/string)
+            'type':        shouldBeString,  // (/string)
+            'url':         shouldBeString,  // (/string => card game DB spoiler URL)
+        };
 
         var otherKeys = [
             'flavor',         // (/string)
@@ -116,9 +118,9 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
             'uniqueness',     // (/boolean)
         ];
 
-        _(mandatoryKeys).each(function(key) {
-            it('has the ' + key + ' property', function() {
-                data.should.have.property(key);
+        _(mandatoryKeys).each(function(matcher, key) {
+            it('has a valid ' + key + ' property', function() {
+                data.should.have.property(key).which.match(matcher);
             });
         });
     });
