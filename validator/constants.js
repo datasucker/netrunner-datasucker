@@ -25,6 +25,7 @@ var enumValues = {
         event:     'Event',
         hardware:  'Hardware',
         ice:       'Ice',
+        identity:  'Identity',
         operation: 'Operation',
         program:   'Program',
         resource:  'Resource',
