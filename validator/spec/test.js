@@ -82,13 +82,18 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
         });
     });
 
-    _(referenceCards).each(function(referenceCard) {
-        describe('has the ' + referenceCard.title + ' card (/card/' + referenceCard.code + ' endpoint) which', function() {
-            beforeEach(getData('/card/' + referenceCard.code));
+    describe('has some example cards.', function() {
 
-            _(referenceCard).each(function(value, key) {
-                it('has the correct ' + key + ' value and type', function() {
-                    data.should.have.property(key, value).and.be.of.type(typeof value);
+        _(referenceCards).each(function(referenceCard) {
+
+            describe('It has ' + referenceCard.title + ' at /card/' + referenceCard.code, function() {
+
+                beforeEach(getData('/card/' + referenceCard.code));
+
+                _(referenceCard).each(function(value, key) {
+                    it('with the correct ' + key + ' value of type ' + (typeof value), function() {
+                        data.should.have.property(key, value).and.be.of.type(typeof value);
+                    });
                 });
             });
         });
