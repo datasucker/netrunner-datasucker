@@ -1,6 +1,7 @@
 var request = require('request');
 var should = require('should');
 var _ = require('underscore');
+var sprintf = require('util').format;
 
 var testParams = require('../test-params');
 var makeCachedRequest = require('../helpers').makeCachedRequest;
@@ -31,7 +32,7 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
             '/card/01008',
             '/sets',
         ]).each(function(apiPath) {
-            it('the ' + apiPath + ' endpoint', function(done) {
+            it(sprintf('the %s endpoint', apiPath), function(done) {
                 request(testParams.targetBaseUrl + apiPath, function(error, response) {
                     if(error) {
                         throw error;
@@ -58,8 +59,8 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
             '/card/01008',
             '/sets',
         ]).each(function(apiPath) {
-            it('at the ' + apiPath + ' endpoint', function(done) {
-                request(testParams.targetBaseUrl + apiPath + '?' + callbackParamName + '=' + callbackName, function(error, response, body) {
+            it(sprintf('at the %s endpoint', apiPath), function(done) {
+                request(sprintf('%s%s?%s=%s', testParams.targetBaseUrl, apiPath, callbackParamName, callbackName), function(error, response, body) {
                     if(error) {
                         done();
                         throw error;
@@ -117,12 +118,12 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
 
         _(referenceCards).each(function(referenceCard) {
 
-            describe('It has ' + referenceCard.title + ' at /card/' + referenceCard.code, function() {
+            describe(sprintf('It has %s at /card/%s', referenceCard.title, referenceCard.code), function() {
 
                 beforeEach(getData('/card/' + referenceCard.code));
 
                 _(referenceCard).each(function(value, key) {
-                    it('with the correct ' + key + ' value of type ' + (typeof value), function() {
+                    it(sprintf('with the correct %s value of type %s', key, typeof value), function() {
                         data.should.have.property(key, value).and.be.of.type(typeof value);
                     });
                 });
