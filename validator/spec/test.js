@@ -48,6 +48,37 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
         });
     });
 
+    describe('responds with JSONP if requested', function() {
+        var callbackParamName = 'callback';
+        var callbackName = 'localFunc';
+
+        _([
+            '/status',
+            '/cards',
+            '/card/01008',
+            '/sets',
+        ]).each(function(apiPath) {
+            it('at the ' + apiPath + ' endpoint', function(done) {
+                request(testParams.targetBaseUrl + apiPath + '?' + callbackParamName + '=' + callbackName, function(error, response, body) {
+                    if(error) {
+                        done();
+                        throw error;
+                    }
+
+                    var matches = body.match(new RegExp(callbackName + '\\((.*)\\);?'));
+                    matches.should.have.length(2);
+
+                    function parseBody() {
+                        return JSON.parse(matches[1]);
+                    }
+                    parseBody.should.not.throw();
+
+                    done();
+                });
+            });
+        });
+    });
+
     describe('has a /cards endpoint which', function() {
         beforeEach(getData('/cards'));
 
