@@ -1,0 +1,21 @@
+{
+  "name": "netrunner-datasucker-validator",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Test suite for checking that a target Datasucker satisfies the API specification.",
+  "homepage": "https://github.com/datasucker/netrunner-datasucker",
+  "license": "MIT",
+  "dependencies": {
+    "mocha": "^1.21.5",
+    "request": "^2.45.0",
+    "should": "^4.1.0",
+    "underscore": "^1.7.0"
+  },
+  "devDependencies": {
+    "supervisor": "^0.6.0"
+  },
+  "scripts": {
+    "autotest": "./node_modules/.bin/supervisor -n exit -- node_modules/.bin/mocha spec",
+    "test": "./node_modules/.bin/mocha spec"
+  }
+}
