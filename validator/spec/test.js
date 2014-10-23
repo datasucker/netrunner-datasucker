@@ -5,6 +5,8 @@ var _ = require('underscore');
 var testParams = require('../test-params');
 var makeCachedRequest = require('../helpers').makeCachedRequest;
 
+var referenceCards = require('../constants').referenceCards;
+
 console.log('Validating datasucker at base URL', testParams.targetBaseUrl);
 
 describe('The datasucker at ' + testParams.targetBaseUrl, function() {
@@ -58,52 +60,6 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
         });
     });
 
-    describe('has the Datasucker card (/card/01008 endpoint) which', function() {
-        beforeEach(getData('/card/01008'));
-
-        var shouldBeString  = function(it) { return it.should.be.a.String; };
-        var shouldBeInteger = function(it) { return it.should.be.a.Number; };
-        var shouldBeArray   = function(it) { return it.should.be.an.Array; };
-
-        var mandatoryKeys = {
-            'code': function(it) { return it.should.be.a.String.and.match(/^\d{5}$/); },
-            'faction':     shouldBeString,  // (/string)
-            'factioncost': shouldBeInteger, // (/integer)
-            'images':      shouldBeArray,   // (/array => may be more than one if the card has alternate art, primary art is index 0)
-            'number':      shouldBeInteger, // (/integer => number within the set)
-            'maxperdeck':  shouldBeInteger, // (/integer => how many of this card are allowed in a deck)
-            'quantity':    shouldBeInteger, // (/integer => how many of this card are in the set/pack)
-            'regex':       shouldBeString,  // (/string => regular expression pattern for matching cards with varying text)
-            'set':         shouldBeString,  // (/string => name of the set/datapack)
-            'setcode':     shouldBeString,  // (/string => internal code for set, not suitable for sorting purposes)
-            'side':        shouldBeString,  // (/string => "Runner" or "Corp")
-            'subtype':     shouldBeString,  // (/string => if set, list of card subtypes separated by ' - ')
-            'text':        shouldBeString,  // (/string)
-            'title':       shouldBeString,  // (/string)
-            'type':        shouldBeString,  // (/string)
-            'url':         shouldBeString,  // (/string => card game DB spoiler URL)
-        };
-
-        var otherKeys = [
-            'flavor',         // (/string)
-            'cost',           // (/integer)
-            'agendapoints',   // (/integer => only used if card is an agenda)
-            'baselink',       // (/integer => only used if card is a runner identity)
-            'influencelimit', // (/integer => only used if card is an identity)
-            'memoryunits',    // (/integer => only used if card is a runner program)
-            'mindecksize',    // (/integer => only used if card is an identity)
-            'strength',       // (/integer)
-            'trash',          // (/integer)
-            'uniqueness',     // (/boolean)
-        ];
-
-        _(mandatoryKeys).each(function(matcher, key) {
-            it('has a valid ' + key + ' property', function() {
-                data.should.have.property(key).which.match(matcher);
-            });
-        });
-    });
-
     describe('has a /sets endpoint which', function() {
         beforeEach(getData('/sets'));
 
@@ -123,6 +79,18 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
             var lastupdatedRestringified = new Date(data.lastupdated).toISOString();
             lastupdatedRestringified.should.not.equal('Invalid Date');
             lastupdatedRestringified.should.equal(data.lastupdated);
+        });
+    });
+
+    _(referenceCards).each(function(referenceCard) {
+        describe('has the ' + referenceCard.title + ' card (/card/' + referenceCard.code + ' endpoint) which', function() {
+            beforeEach(getData('/card/' + referenceCard.code));
+
+            _(referenceCard).each(function(value, key) {
+                it('has the correct ' + key + ' value and type', function() {
+                    data.should.have.property(key, value).and.be.of.type(typeof value);
+                });
+            });
         });
     });
 });
