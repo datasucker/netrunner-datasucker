@@ -24,6 +24,7 @@ var Card = Backbone.Model.extend({ idAttribute: 'code' });
 var CardList = Backbone.Collection.extend({ model: Card });
 
 var cards = new CardList();
+var sets = new Backbone.Collection();
 var lastupdated = new Date(0);
 
 fs.readFile(CARDS_FILE, { encoding: 'utf8' }, function(error, data) {
@@ -67,8 +68,28 @@ function updateLastupdated() {
 	});
 }
 
+function updateSets() {
+	sets.set(_(cards.groupBy('setcode')).map(function(setCards, setcode) {
+		 var representativeCard = _(setCards).chain()
+			.pluck('attributes')
+			.sortBy('number')
+			.last()
+			.value();
+
+		 var cycleNumber = parseInt(representativeCard.code.substr(0, 2), 10);
+		 return {
+			 cyclenumber: cycleNumber,
+			 name: representativeCard.set,
+			 number: cycleNumber,
+			 setcode: setcode,
+			 total: representativeCard.number,
+		 };
+	}));
+}
+
 cards.on('add remove change', _.debounce(writeCardData, 5000));
 cards.on('add remove change', _.debounce(updateLastupdated, 5000));
+cards.on('add remove change:setcode change:number change:code', _.debounce(updateSets, 1000));
 
 // this downloads the latest JSON data from CardGameDB and starts the parsing process
 function fetchCgdbData() {
@@ -102,7 +123,7 @@ addRoute('/status', function(req) {
 });
 
 addRoute('/sets', function(req) {
-	return [];
+	return sets;
 });
 
 addRoute('/cards', function(req) {
