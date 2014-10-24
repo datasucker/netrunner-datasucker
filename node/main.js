@@ -126,3 +126,16 @@ var server = app.listen(8080, function() {
 
 	console.log('Datasucker listening at ' + host + ' port ' + port);
 });
+
+var controllerApp = express();
+controllerApp.get('/update', function(req, res) {
+	fetchCgdbData();
+	res.status(200).end();
+});
+
+var controlServer = controllerApp.listen(8081, function() {
+	var host = server.address().address;
+	var port = server.address().port;
+
+	console.log('Datasucker admin API listening at ' + host + ' port ' + port);
+})
