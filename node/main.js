@@ -67,6 +67,7 @@ function updateLastupdated() {
 }
 
 cards.on('add remove change', _.debounce(writeCardData, 5000));
+cards.on('add remove change', _.debounce(updateLastupdated, 5000));
 
 function addRoute(path, jsonBuilder) {
 	return app.get(path, function(req, res) {
