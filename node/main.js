@@ -44,7 +44,7 @@ cards.on('add remove change', _.debounce(function() {
 function addRoute(path, jsonBuilder) {
 	return app.get(path, function(req, res) {
 		res.header('Access-Control-Allow-Origin', "*");
-		return res.jsonp(jsonBuilder(req));
+		return res.jsonp(jsonBuilder(req, res));
 	});
 }
 
@@ -61,9 +61,14 @@ addRoute('/cards', function(req) {
 });
 
 // Get a card's JSON data by its code (ex: "01024")
-addRoute('/card/:code', function(req) {
-	var code = req.params.code;
-	return cards.get(code);
+addRoute('/card/:code', function(req, res) {
+	'use strict'
+	var card = cards.get(req.params.code);
+	if(card) {
+		return card;
+	}
+	res.status(404);
+	return undefined;
 });
 
 var server = app.listen(8080, function() {
