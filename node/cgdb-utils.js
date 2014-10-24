@@ -17,6 +17,12 @@ module.exports.mapCard = function mapCard(rawCard) {
 		} else {
 			card.imagesrc = "http://www.cardgamedb.com/forums/uploads/an/med_" + rawCard.img + ".png";
 		}
+		card.images = [
+			{
+				illustrator: card.illustrator,
+				src: card.imagesrc,
+			},
+		];
 		card.influencelimit = parseRawValue(rawCard, "inflimit", true);
 		card.memoryunits = parseRawValue(rawCard, "memory", true);
 		card.mindecksize = parseRawValue(rawCard, "mindecksize", true);
