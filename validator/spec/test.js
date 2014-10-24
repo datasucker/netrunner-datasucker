@@ -116,11 +116,37 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
 
     describe('has some example cards.', function() {
 
+        var shouldBeString  = function(it) { return it.should.be.a.String; };
+        var shouldBeInteger = function(it) { return it.should.be.a.Number; };
+
+        var mandatoryKeys = {
+            'code':       function(it) { return it.should.be.a.String.and.match(/^\d{5}$/); },
+            'faction':    shouldBeString,
+            'images':     function(it) { return it.should.be.an.Array.and.have.property('length').greaterThan(0); },
+            'number':     shouldBeInteger,
+            'maxperdeck': shouldBeInteger,
+            'quantity':   shouldBeInteger,
+            'set':        shouldBeString,
+            'setcode':    shouldBeString,
+            'side':       shouldBeString,
+            'subtype':    shouldBeString,
+            'text':       shouldBeString,
+            'title':      shouldBeString,
+            'type':       shouldBeString,
+            'url':        shouldBeString,
+        };
+
         _(referenceCards).each(function(referenceCard) {
 
             describe(sprintf('It has %s at /card/%s', referenceCard.title, referenceCard.code), function() {
 
                 beforeEach(getData('/card/' + referenceCard.code));
+
+                _(mandatoryKeys).each(function(test, key) {
+                    it('has the mandatory ' + key + ' property', function() {
+                        data.should.have.property(key).which.match(test);
+                    });
+                });
 
                 _(referenceCard).each(function(value, key) {
                     it(sprintf('with the correct %s value of type %s', key, typeof value), function() {
