@@ -1,4 +1,5 @@
 var fs = require('fs');
+var request = require('request');
 var Backbone = require('backbone');
 var express = require('express');
 var _ = require('underscore');
@@ -68,6 +69,24 @@ function updateLastupdated() {
 
 cards.on('add remove change', _.debounce(writeCardData, 5000));
 cards.on('add remove change', _.debounce(updateLastupdated, 5000));
+
+// this downloads the latest JSON data from CardGameDB and starts the parsing process
+function fetchCgdbData() {
+	console.log('Fetching card data from URL', fallbackDataURL);
+
+	request(fallbackDataURL, function(error, response, body) {
+		if(error) {
+			throw error;
+		}
+
+		// strip off "cards = " from the front and ";" off the end
+		var cardsJSON = JSON.parse(body.substr(8, body.length - 9));
+
+		console.log(sprintf('Downloaded %d cards from CardGameDB', cardsJSON.length));
+
+		cards.set(_(cardsJSON).map(mapCard));
+	});
+}
 
 function addRoute(path, jsonBuilder) {
 	return app.get(path, function(req, res) {
