@@ -1,3 +1,4 @@
+var fs = require('fs');
 var Backbone = require('backbone');
 var express = require('express');
 var _ = require('underscore');
@@ -9,6 +10,10 @@ var fallbackDataURL = 'http://www.cardgamedb.com/deckbuilders/androidnetrunner/d
 // set to false if you want imagesrc to hotlink directly to CardGameDB.com
 var sideLoadImages = true;
 
+var CARDS_FILE = 'data/cards.json';
+
+fs.mkdir('data');
+
 var app = express();
 app.set('jsonp callback', true);
 
@@ -16,6 +21,25 @@ var Card = Backbone.Model.extend({ idAttribute: 'code' });
 var CardList = Backbone.Collection.extend({ model: Card });
 
 var cards = new CardList();
+
+fs.readFile(CARDS_FILE, { encoding: 'utf8' }, function(error, data) {
+	if(error) {
+		console.log('Failed to read card data from file', CARDS_FILE, 'update from CGDB may be necessary.');
+		return error;
+	}
+	cards.set(JSON.parse(data));
+	console.log('Card data successfully read from', CARDS_FILE);
+});
+
+cards.on('add remove change', _.debounce(function() {
+	fs.writeFile(CARDS_FILE, JSON.stringify(cards), function(error) {
+		if(error) {
+			console.log('Failed to write card data to', CARDS_FILE, error);
+			throw error;
+		}
+		console.log('Card data successfully written to', CARDS_FILE);
+	});
+}, 5000));
 
 function addRoute(path, jsonBuilder) {
 	return app.get(path, function(req, res) {
