@@ -32,6 +32,7 @@ module.exports.mapCard = function mapCard(rawCard) {
 		card.trash = parseRawValue(rawCard, "trash", true);
 		card.type = parseRawValue(rawCard, "type", false);
 		card.uniqueness = rawCard.unique == "Yes" ? true : false;
+		card.url = 'http://www.cardgamedb.com/index.php/netrunner/android-netrunner-card-spoilers/_/' + rawCard.furl;
 	}
 	return card;
 }
