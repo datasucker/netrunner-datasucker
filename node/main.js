@@ -43,7 +43,7 @@ fs.readFile(LAST_UPDATED_FILE, { encoding: 'utf8' }, function(error, data) {
 	console.log(sprintf('lastupdated successfully read from %s: %s', LAST_UPDATED_FILE, lastupdated.toISOString()));
 });
 
-cards.on('add remove change', _.debounce(function() {
+function writeCardData() {
 	fs.writeFile(CARDS_FILE, JSON.stringify(cards), function(error) {
 		if(error) {
 			console.log('Failed to write card data to', CARDS_FILE, error);
@@ -51,7 +51,7 @@ cards.on('add remove change', _.debounce(function() {
 		}
 		console.log('Card data successfully written to', CARDS_FILE);
 	});
-}, 5000));
+}
 
 function updateLastupdated() {
 	var tempLastupdated = new Date();
@@ -65,6 +65,8 @@ function updateLastupdated() {
 		console.log('Updated lastupdated to', lastupdated.toISOString());
 	});
 }
+
+cards.on('add remove change', _.debounce(writeCardData, 5000));
 
 function addRoute(path, jsonBuilder) {
 	return app.get(path, function(req, res) {
