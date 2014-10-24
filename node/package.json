@@ -10,5 +10,9 @@
     "express": "^4.10.0",
     "request": "^2.46.0",
     "underscore": "^1.7.0"
+  },
+  "scripts": {
+	  "start": "node main.js",
+	  "update": "curl http://localhost:8081/update"
   }
 }
