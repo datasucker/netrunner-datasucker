@@ -77,7 +77,9 @@ function addRoute(path, jsonBuilder) {
 }
 
 addRoute('/status', function(req) {
-	return {};
+	return {
+		lastupdated: lastupdated.toISOString(),
+	};
 });
 
 addRoute('/sets', function(req) {
