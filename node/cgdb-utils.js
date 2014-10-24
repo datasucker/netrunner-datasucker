@@ -4,6 +4,9 @@ module.exports.mapCard = function mapCard(rawCard) {
 	{
 		card.code = rawCard.GUID.slice(-5);
 		card.title = rawCard.name;
+		if(card.title === 'Deja Vu') {
+			card.title = 'Déjà Vu';
+		}
 
 		card.agendapoints = parseRawValue(rawCard, "agendapoints", true);
 		card.baselink = parseRawValue(rawCard, "link", true);
