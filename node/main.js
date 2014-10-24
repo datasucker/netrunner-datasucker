@@ -1,12 +1,13 @@
+var express = require('express');
+var _ = require('underscore');
+var mapCard = require('./cgdb-utils').mapCard;
+
 // The current fallback URL: this can be configured via a DSConfig property of ( dataURL : __url__)
 var fallbackDataURL = 'http://www.cardgamedb.com/deckbuilders/androidnetrunner/database/anjson-cgdb-adn18.jgz';
 
 // set to false if you want imagesrc to hotlink directly to CardGameDB.com
 var sideLoadImages = true;
 
-var mapCard = require('./cgdb-utils').mapCard;
-var express = require('express');
-var _ = require('underscore');
 var app = express();
 app.set('jsonp callback', true);
 
