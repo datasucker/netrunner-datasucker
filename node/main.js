@@ -6,6 +6,7 @@ var sideLoadImages = true;
 
 var mapCard = require('./cgdb-utils').mapCard;
 var express = require('express');
+var _ = require('underscore');
 var app = express();
 app.set('jsonp callback', true);
 

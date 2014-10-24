@@ -6,6 +6,7 @@
   "homepage": "https://github.com/datasucker/netrunner-datasucker",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.10.0"
+    "express": "^4.10.0",
+    "underscore": "^1.7.0"
   }
 }
