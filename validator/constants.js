@@ -213,21 +213,21 @@ var referenceCards = {
         url:         getSpoilerUrl('heimdall-1-0-core'),
     },
     troubleshooter: {
-        code: "01065",            // (string => last 5 digits of the GUIDs, ex: "01023" => set 01, card 023)
-        cost: 0,            // (integer)
-        faction: enumValues.factions.hb,         // (string)
-        factioncost: 1,     // (integer)
-        number: 65,          // (integer => number within the set)
-        maxperdeck: 3,      // (integer => how many of this card are allowed in a deck)
-        quantity: 1,        // (integer => how many of this card are in the set/pack)
-        set: enumValues.sets.core,             // (string => name of the set/datapack)
-        side: enumValues.sides.corp,            // (string => "Runner" or "Corp")
-        subtype: "Connection",         // (string => if set, list of card subtypes separated by ' - ')
-        title: "Corporate Troubleshooter",           // (string)
-        trash: 2,           // (integer)
-        type: enumValues.types.upgrade,            // (string)
-        uniqueness: false,      // (boolean)
-        url: getSpoilerUrl('corporate-troubleshooter-core'),             // (string => card game DB spoiler URL)
+        code:        "01065",
+        cost:        0,
+        faction:     enumValues.factions.hb,
+        factioncost: 1,
+        number:      65,
+        maxperdeck:  3,
+        quantity:    1,
+        set:         enumValues.sets.core,
+        side:        enumValues.sides.corp,
+        subtype:     "Connection",
+        title:       "Corporate Troubleshooter",
+        trash:       2,
+        type:        enumValues.types.upgrade,
+        uniqueness:  false,
+        url:         getSpoilerUrl('corporate-troubleshooter-core'),
     },
 };
 
