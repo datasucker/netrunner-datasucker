@@ -3,6 +3,7 @@ var Backbone = require('backbone');
 var express = require('express');
 var _ = require('underscore');
 var mapCard = require('./cgdb-utils').mapCard;
+var sprintf = require('util').format;
 
 // The current fallback URL: this can be configured via a DSConfig property of ( dataURL : __url__)
 var fallbackDataURL = 'http://www.cardgamedb.com/deckbuilders/androidnetrunner/database/anjson-cgdb-adn18.jgz';
@@ -11,6 +12,7 @@ var fallbackDataURL = 'http://www.cardgamedb.com/deckbuilders/androidnetrunner/d
 var sideLoadImages = true;
 
 var CARDS_FILE = 'data/cards.json';
+var LAST_UPDATED_FILE = 'data/lastupdated';
 
 fs.mkdir('data');
 
@@ -21,6 +23,7 @@ var Card = Backbone.Model.extend({ idAttribute: 'code' });
 var CardList = Backbone.Collection.extend({ model: Card });
 
 var cards = new CardList();
+var lastupdated = new Date(0);
 
 fs.readFile(CARDS_FILE, { encoding: 'utf8' }, function(error, data) {
 	if(error) {
@@ -29,6 +32,15 @@ fs.readFile(CARDS_FILE, { encoding: 'utf8' }, function(error, data) {
 	}
 	cards.set(JSON.parse(data));
 	console.log('Card data successfully read from', CARDS_FILE);
+});
+
+fs.readFile(LAST_UPDATED_FILE, { encoding: 'utf8' }, function(error, data) {
+	if(error) {
+		console.log('Failed to read lastupdated from file', LAST_UPDATED_FILE);
+		return error;
+	}
+	lastupdated = new Date(data);
+	console.log(sprintf('lastupdated successfully read from %s: %s', LAST_UPDATED_FILE, lastupdated.toISOString()));
 });
 
 cards.on('add remove change', _.debounce(function() {
@@ -40,6 +52,19 @@ cards.on('add remove change', _.debounce(function() {
 		console.log('Card data successfully written to', CARDS_FILE);
 	});
 }, 5000));
+
+function updateLastupdated() {
+	var tempLastupdated = new Date();
+
+	fs.writeFile('data/lastupdated', tempLastupdated.toISOString(), function(error) {
+		if(error) {
+			console.log('Failed to write data/lastupdated', error);
+			throw error;
+		}
+		lastupdated = tempLastupdated;
+		console.log('Updated lastupdated to', lastupdated.toISOString());
+	});
+}
 
 function addRoute(path, jsonBuilder) {
 	return app.get(path, function(req, res) {
