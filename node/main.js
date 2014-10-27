@@ -9,9 +9,6 @@ var sprintf = require('util').format;
 // The current fallback URL: this can be configured via a DSConfig property of ( dataURL : __url__)
 var fallbackDataURL = 'http://www.cardgamedb.com/deckbuilders/androidnetrunner/database/anjson-cgdb-adn18.jgz';
 
-// set to false if you want imagesrc to hotlink directly to CardGameDB.com
-var sideLoadImages = true;
-
 var CARDS_FILE = 'data/cards.json';
 var LAST_UPDATED_FILE = 'data/lastupdated';
 
