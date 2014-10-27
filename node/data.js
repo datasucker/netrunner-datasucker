@@ -1,7 +1,6 @@
 var fs = require('fs');
 var Backbone = require('backbone');
 var _ = require('underscore');
-var sprintf = require('util').format;
 
 var CARDS_FILE = 'data/cards.json';
 var STATUS_FILE = 'data/lastupdated';
