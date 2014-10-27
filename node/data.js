@@ -24,9 +24,9 @@ var Status = Backbone.Model.extend({
 	},
 
 	save: function() {
-		fs.writeFile('data/lastupdated', this.get('lastupdated').toISOString(), _.bind(function(error) {
+		fs.writeFile(LAST_UPDATED_FILE, this.get('lastupdated').toISOString(), _.bind(function(error) {
 			if(error) {
-				console.log('Failed to write data/lastupdated', error);
+				console.log('Failed to write', LAST_UPDATED_FILE, error);
 				throw error;
 			}
 			console.log('Saved lastupdated:', this.get('lastupdated').toISOString());
