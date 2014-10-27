@@ -78,8 +78,8 @@ controllerApp.get('/update', function(req, res) {
 });
 
 var controlServer = controllerApp.listen(8081, function() {
-	var host = server.address().address;
-	var port = server.address().port;
+	var host = controlServer.address().address;
+	var port = controlServer.address().port;
 
 	console.log('Datasucker admin API listening at ' + host + ' port ' + port);
 })
