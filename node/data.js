@@ -46,6 +46,8 @@ var Status = Backbone.Model.extend({
 
 	initialize: function() {
 		this.on('change:lastupdated', this.save, this);
+
+		this.load();
 	},
 
 	updateLastupdated: function() {
@@ -61,20 +63,22 @@ var Status = Backbone.Model.extend({
 			console.log('Saved lastupdated:', this.get('lastupdated').toISOString());
 		}, this));
 	},
+
+	load: function() {
+		fs.readFile(LAST_UPDATED_FILE, { encoding: 'utf8' }, _.bind(function(error, data) {
+			if(error) {
+				console.log('Failed to read lastupdated from file', LAST_UPDATED_FILE);
+				return error;
+			}
+			this.set('lastupdated', new Date(data));
+			console.log(sprintf('lastupdated successfully read from %s: %s', LAST_UPDATED_FILE, status.get('lastupdated').toISOString()));
+		}, this));
+	},
 });
 
 var cards = new CardList();
 var sets = new Backbone.Collection();
 var status = new Status();
-
-fs.readFile(LAST_UPDATED_FILE, { encoding: 'utf8' }, function(error, data) {
-	if(error) {
-		console.log('Failed to read lastupdated from file', LAST_UPDATED_FILE);
-		return error;
-	}
-	status.set('lastupdated', new Date(data));
-	console.log(sprintf('lastupdated successfully read from %s: %s', LAST_UPDATED_FILE, status.get('lastupdated').toISOString()));
-});
 
 function updateSets() {
 	sets.set(_(cards.groupBy('setcode')).map(function(setCards, setcode) {
