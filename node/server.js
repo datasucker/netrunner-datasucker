@@ -74,7 +74,7 @@ server.listen(8080, function() {
 });
 
 var controllerApp = express();
-controllerApp.get('/update', function(req, res) {
+controllerApp.post('/update', function(req, res) {
 	fetchCgdbData();
 	res.status(200).end();
 });
