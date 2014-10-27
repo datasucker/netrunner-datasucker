@@ -86,6 +86,17 @@ var Status = Backbone.Model.extend({
 		this.set('lastupdated', new Date());
 	},
 
+	load: function() {
+		fs.readFile(LAST_UPDATED_FILE, { encoding: 'utf8' }, _.bind(function(error, data) {
+			if(error) {
+				console.log('Failed to read status from file', LAST_UPDATED_FILE);
+				return error;
+			}
+			this.set(JSON.parse(data));
+			console.log('status successfully read from', LAST_UPDATED_FILE, ':', this.attributes);
+		}, this));
+	},
+
 	save: function() {
 		var persistentAttributes = this.pick('lastupdated');
 
@@ -95,17 +106,6 @@ var Status = Backbone.Model.extend({
 				throw error;
 			}
 			console.log('Saved status:', persistentAttributes);
-		}, this));
-	},
-
-	load: function() {
-		fs.readFile(LAST_UPDATED_FILE, { encoding: 'utf8' }, _.bind(function(error, data) {
-			if(error) {
-				console.log('Failed to read status from file', LAST_UPDATED_FILE);
-				return error;
-			}
-			this.set(JSON.parse(data));
-			console.log('status successfully read from', LAST_UPDATED_FILE, ':', this.attributes);
 		}, this));
 	},
 });
