@@ -4,7 +4,7 @@ var _ = require('underscore');
 var sprintf = require('util').format;
 
 var CARDS_FILE = 'data/cards.json';
-var LAST_UPDATED_FILE = 'data/lastupdated';
+var STATUS_FILE = 'data/lastupdated';
 fs.mkdir('data');
 
 function saveToFile(data, filename, callback) {
@@ -101,11 +101,11 @@ var Status = Backbone.Model.extend({
 	},
 
 	load: function() {
-		loadBackboneFromFile(this, LAST_UPDATED_FILE, function(error, model) {
+		loadBackboneFromFile(this, STATUS_FILE, function(error, model) {
 			if(error) {
-				console.log('Failed to read status from file', LAST_UPDATED_FILE);
+				console.log('Failed to read status from file', STATUS_FILE);
 			} else {
-				console.log('status successfully read from', LAST_UPDATED_FILE, ':', model.attributes);
+				console.log('status successfully read from', STATUS_FILE, ':', model.attributes);
 			}
 		});
 	},
@@ -113,9 +113,9 @@ var Status = Backbone.Model.extend({
 	save: function() {
 		var persistentAttributes = this.pick('lastupdated');
 
-		saveToFile(persistentAttributes, LAST_UPDATED_FILE, function(error) {
+		saveToFile(persistentAttributes, STATUS_FILE, function(error) {
 			if(error) {
-				console.log('Failed to write status to', LAST_UPDATED_FILE, error);
+				console.log('Failed to write status to', STATUS_FILE, error);
 			} else {
 				console.log('Saved status:', persistentAttributes);
 			}
