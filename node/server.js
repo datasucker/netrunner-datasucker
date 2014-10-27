@@ -1,3 +1,4 @@
+var http = require('http');
 var request = require('request');
 var express = require('express');
 var _ = require('underscore');
@@ -64,7 +65,8 @@ addRoute('/card/:code', function(req, res) {
 	return undefined;
 });
 
-var server = app.listen(8080, function() {
+var server = http.createServer(app);
+server.listen(8080, function() {
 	var host = server.address().address;
 	var port = server.address().port;
 
@@ -77,7 +79,8 @@ controllerApp.get('/update', function(req, res) {
 	res.status(200).end();
 });
 
-var controlServer = controllerApp.listen(8081, function() {
+var controlServer = http.createServer(controllerApp);
+controlServer.listen(8081, function() {
 	var host = controlServer.address().address;
 	var port = controlServer.address().port;
 
