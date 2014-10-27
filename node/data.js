@@ -11,6 +11,17 @@ function saveToFile(data, filename, callback) {
 	fs.writeFile(filename, JSON.stringify(data), { encoding: 'utf8' }, callback);
 }
 
+function loadBackboneFromFile(modelOrCollection, filename, callback) {
+	fs.readFile(filename, { encoding: 'utf8' }, function(error, data) {
+		if(error) {
+			callback(error);
+		} else {
+			modelOrCollection.set(JSON.parse(data));
+			callback(false, modelOrCollection);
+		}
+	});
+}
+
 var Card = Backbone.Model.extend({ idAttribute: 'code' });
 var CardList = Backbone.Collection.extend({
 	model: Card,
@@ -22,14 +33,13 @@ var CardList = Backbone.Collection.extend({
 	},
 
 	load: function() {
-		fs.readFile(CARDS_FILE, { encoding: 'utf8' }, _.bind(function(error, data) {
+		loadBackboneFromFile(this, CARDS_FILE, function(error, data) {
 			if(error) {
 				console.log('Failed to read card data from file', CARDS_FILE, 'update from CGDB may be necessary.');
-				return error;
+			} else {
+				console.log('Card data successfully read from', CARDS_FILE);
 			}
-			this.set(JSON.parse(data));
-			console.log('Card data successfully read from', CARDS_FILE);
-		}, this));
+		});
 	},
 
 	save: function() {
@@ -91,14 +101,13 @@ var Status = Backbone.Model.extend({
 	},
 
 	load: function() {
-		fs.readFile(LAST_UPDATED_FILE, { encoding: 'utf8' }, _.bind(function(error, data) {
+		loadBackboneFromFile(this, LAST_UPDATED_FILE, function(error, model) {
 			if(error) {
 				console.log('Failed to read status from file', LAST_UPDATED_FILE);
-				return error;
+			} else {
+				console.log('status successfully read from', LAST_UPDATED_FILE, ':', model.attributes);
 			}
-			this.set(JSON.parse(data));
-			console.log('status successfully read from', LAST_UPDATED_FILE, ':', this.attributes);
-		}, this));
+		});
 	},
 
 	save: function() {
