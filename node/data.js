@@ -39,6 +39,33 @@ var CardList = Backbone.Collection.extend({
 	},
 });
 
+var SetList = Backbone.Collection.extend({
+	initialize: function(cards) {
+		this.cards = cards;
+
+		this.listenTo(cards, 'add remove change:setcode change:number change:code', _.debounce(this.update, 1000));
+	},
+
+	update: function() {
+		this.set(_(this.cards.groupBy('setcode')).map(function(setCards, setcode) {
+			 var representativeCard = _(setCards).chain()
+				.pluck('attributes')
+				.sortBy('number')
+				.last()
+				.value();
+
+			 var cycleNumber = parseInt(representativeCard.code.substr(0, 2), 10);
+			 return {
+				 cyclenumber: cycleNumber,
+				 name: representativeCard.set,
+				 number: cycleNumber,
+				 setcode: setcode,
+				 total: representativeCard.number,
+			 };
+		}));
+	}
+});
+
 var Status = Backbone.Model.extend({
 	defaults: {
 		lastupdated: new Date(0),
@@ -77,29 +104,8 @@ var Status = Backbone.Model.extend({
 });
 
 var cards = new CardList();
-var sets = new Backbone.Collection();
+var sets = new SetList(cards);
 var status = new Status();
-
-function updateSets() {
-	sets.set(_(cards.groupBy('setcode')).map(function(setCards, setcode) {
-		 var representativeCard = _(setCards).chain()
-			.pluck('attributes')
-			.sortBy('number')
-			.last()
-			.value();
-
-		 var cycleNumber = parseInt(representativeCard.code.substr(0, 2), 10);
-		 return {
-			 cyclenumber: cycleNumber,
-			 name: representativeCard.set,
-			 number: cycleNumber,
-			 setcode: setcode,
-			 total: representativeCard.number,
-		 };
-	}));
-}
-
-cards.on('add remove change:setcode change:number change:code', _.debounce(updateSets, 1000));
 
 status.listenTo(cards, 'add remove change', _.debounce(status.updateLastupdated, 5000));
 
