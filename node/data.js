@@ -29,7 +29,7 @@ var CardList = Backbone.Collection.extend({
 	},
 
 	save: function() {
-		fs.writeFile(CARDS_FILE, JSON.stringify(this), _.bind(function(error) {
+		fs.writeFile(CARDS_FILE, JSON.stringify(this), { encoding: 'utf8' }, _.bind(function(error) {
 			if(error) {
 				console.log('Failed to write card data to', CARDS_FILE, error);
 				throw error;
@@ -55,7 +55,7 @@ var Status = Backbone.Model.extend({
 	},
 
 	save: function() {
-		fs.writeFile(LAST_UPDATED_FILE, this.get('lastupdated').toISOString(), _.bind(function(error) {
+		fs.writeFile(LAST_UPDATED_FILE, this.get('lastupdated').toISOString(), { encoding: 'utf8' }, _.bind(function(error) {
 			if(error) {
 				console.log('Failed to write', LAST_UPDATED_FILE, error);
 				throw error;
