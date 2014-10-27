@@ -72,7 +72,12 @@ var Status = Backbone.Model.extend({
 	},
 
 	initialize: function() {
-		this.on('change:lastupdated', this.save, this);
+		this.on('change:lastupdated', function(model, value) {
+			if(_(value).isDate()) {
+				model.set('lastupdated', value.toISOString());
+			}
+		}, this);
+		this.on('change:lastupdated', _.debounce(this.save, 10), this);
 
 		this.load();
 	},
