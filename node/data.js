@@ -8,7 +8,23 @@ var LAST_UPDATED_FILE = 'data/lastupdated';
 fs.mkdir('data');
 
 var Card = Backbone.Model.extend({ idAttribute: 'code' });
-var CardList = Backbone.Collection.extend({ model: Card });
+var CardList = Backbone.Collection.extend({
+	model: Card,
+
+	initialize: function() {
+		this.on('add remove change', _.debounce(this.save, 5000), this);
+	},
+
+	save: function() {
+		fs.writeFile(CARDS_FILE, JSON.stringify(cards), _.bind(function(error) {
+			if(error) {
+				console.log('Failed to write card data to', CARDS_FILE, error);
+				throw error;
+			}
+			console.log('Card data successfully written to', CARDS_FILE);
+		}, this));
+	},
+});
 
 var Status = Backbone.Model.extend({
 	defaults: {
@@ -56,16 +72,6 @@ fs.readFile(LAST_UPDATED_FILE, { encoding: 'utf8' }, function(error, data) {
 	console.log(sprintf('lastupdated successfully read from %s: %s', LAST_UPDATED_FILE, status.get('lastupdated').toISOString()));
 });
 
-function writeCardData() {
-	fs.writeFile(CARDS_FILE, JSON.stringify(cards), function(error) {
-		if(error) {
-			console.log('Failed to write card data to', CARDS_FILE, error);
-			throw error;
-		}
-		console.log('Card data successfully written to', CARDS_FILE);
-	});
-}
-
 function updateSets() {
 	sets.set(_(cards.groupBy('setcode')).map(function(setCards, setcode) {
 		 var representativeCard = _(setCards).chain()
@@ -85,7 +91,6 @@ function updateSets() {
 	}));
 }
 
-cards.on('add remove change', _.debounce(writeCardData, 5000));
 cards.on('add remove change:setcode change:number change:code', _.debounce(updateSets, 1000));
 
 status.listenTo(cards, 'add remove change', _.debounce(status.updateLastupdated, 5000));
