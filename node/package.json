@@ -12,7 +12,6 @@
     "underscore": "^1.7.0"
   },
   "scripts": {
-	  "start": "node main.js",
 	  "update": "curl http://localhost:8081/update"
   }
 }
