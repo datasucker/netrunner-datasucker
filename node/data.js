@@ -10,11 +10,33 @@ fs.mkdir('data');
 var Card = Backbone.Model.extend({ idAttribute: 'code' });
 var CardList = Backbone.Collection.extend({ model: Card });
 
+var Status = Backbone.Model.extend({
+	defaults: {
+		lastupdated: new Date(0),
+	},
+
+	initialize: function() {
+		this.on('change:lastupdated', this.save, this);
+	},
+
+	updateLastupdated: function() {
+		this.set('lastupdated', new Date());
+	},
+
+	save: function() {
+		fs.writeFile('data/lastupdated', this.get('lastupdated').toISOString(), _.bind(function(error) {
+			if(error) {
+				console.log('Failed to write data/lastupdated', error);
+				throw error;
+			}
+			console.log('Saved lastupdated:', this.get('lastupdated').toISOString());
+		}, this));
+	},
+});
+
 var cards = new CardList();
 var sets = new Backbone.Collection();
-var status = new Backbone.Model({
-    lastupdated: new Date(0),
-});
+var status = new Status();
 
 fs.readFile(CARDS_FILE, { encoding: 'utf8' }, function(error, data) {
 	if(error) {
@@ -44,19 +66,6 @@ function writeCardData() {
 	});
 }
 
-function updateLastupdated() {
-	var tempLastupdated = new Date();
-
-	fs.writeFile('data/lastupdated', tempLastupdated.toISOString(), function(error) {
-		if(error) {
-			console.log('Failed to write data/lastupdated', error);
-			throw error;
-		}
-		status.set('lastupdated', tempLastupdated);
-		console.log('Updated lastupdated to', status.get('lastupdated').toISOString());
-	});
-}
-
 function updateSets() {
 	sets.set(_(cards.groupBy('setcode')).map(function(setCards, setcode) {
 		 var representativeCard = _(setCards).chain()
@@ -77,12 +86,12 @@ function updateSets() {
 }
 
 cards.on('add remove change', _.debounce(writeCardData, 5000));
-cards.on('add remove change', _.debounce(updateLastupdated, 5000));
 cards.on('add remove change:setcode change:number change:code', _.debounce(updateSets, 1000));
+
+status.listenTo(cards, 'add remove change', _.debounce(status.updateLastupdated, 5000));
 
 module.exports = {
     cards: cards,
     sets: sets,
     status: status,
-    updateLastupdated: updateLastupdated,
 };

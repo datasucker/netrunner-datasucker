@@ -30,7 +30,7 @@ function fetchCgdbData() {
 		console.log(sprintf('Downloaded %d cards from CardGameDB', cardsJSON.length));
 
 		cards.set(_(cardsJSON).map(mapCard));
-		data.updateLastupdated();
+		status.save();
 	});
 }
 
