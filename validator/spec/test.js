@@ -102,6 +102,30 @@ describe('The datasucker at ' + testParams.targetBaseUrl, function() {
         it('contains at least one set', function() {
             data.length.should.be.greaterThan(0);
         });
+
+        describe('contains the Core set. The core set', function() {
+            var coreset;
+            var correctCoreset = {
+                  name: "Core",
+                  cyclenumber: 1,
+                  setcode: "223",
+                  total: 113,
+            };
+
+            beforeEach(function() {
+                coreset = _(data).findWhere({ setcode: '223' });
+            });
+
+            it('is present in the list', function() {
+                (coreset == undefined).should.be.false;
+            });
+
+            _(correctCoreset).each(function(value, key) {
+                it(sprintf('has a %s value of %s, type %s', key, value, typeof value), function() {
+                    coreset.should.have.property(key, value).which.is.of.type(typeof value);
+                });
+            });
+        });
     });
 
     describe('has a /status endpoint', function() {
