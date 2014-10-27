@@ -13,16 +13,29 @@ var CardList = Backbone.Collection.extend({
 
 	initialize: function() {
 		this.on('add remove change', _.debounce(this.save, 5000), this);
+
+		this.load();
+	},
+
+	load: function() {
+		fs.readFile(CARDS_FILE, { encoding: 'utf8' }, _.bind(function(error, data) {
+			if(error) {
+				console.log('Failed to read card data from file', CARDS_FILE, 'update from CGDB may be necessary.');
+				return error;
+			}
+			this.set(JSON.parse(data));
+			console.log('Card data successfully read from', CARDS_FILE);
+		}, this));
 	},
 
 	save: function() {
-		fs.writeFile(CARDS_FILE, JSON.stringify(cards), _.bind(function(error) {
+		fs.writeFile(CARDS_FILE, JSON.stringify(this), _.bind(function(error) {
 			if(error) {
 				console.log('Failed to write card data to', CARDS_FILE, error);
 				throw error;
 			}
 			console.log('Card data successfully written to', CARDS_FILE);
-		}, this));
+		});
 	},
 });
 
@@ -53,15 +66,6 @@ var Status = Backbone.Model.extend({
 var cards = new CardList();
 var sets = new Backbone.Collection();
 var status = new Status();
-
-fs.readFile(CARDS_FILE, { encoding: 'utf8' }, function(error, data) {
-	if(error) {
-		console.log('Failed to read card data from file', CARDS_FILE, 'update from CGDB may be necessary.');
-		return error;
-	}
-	cards.set(JSON.parse(data));
-	console.log('Card data successfully read from', CARDS_FILE);
-});
 
 fs.readFile(LAST_UPDATED_FILE, { encoding: 'utf8' }, function(error, data) {
 	if(error) {
