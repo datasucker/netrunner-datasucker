@@ -25,7 +25,9 @@ var CardList = Backbone.Collection.extend({ model: Card });
 
 var cards = new CardList();
 var sets = new Backbone.Collection();
-var lastupdated = new Date(0);
+var status = new Backbone.Model({
+	lastupdated: new Date(0),
+});
 
 fs.readFile(CARDS_FILE, { encoding: 'utf8' }, function(error, data) {
 	if(error) {
@@ -41,8 +43,8 @@ fs.readFile(LAST_UPDATED_FILE, { encoding: 'utf8' }, function(error, data) {
 		console.log('Failed to read lastupdated from file', LAST_UPDATED_FILE);
 		return error;
 	}
-	lastupdated = new Date(data);
-	console.log(sprintf('lastupdated successfully read from %s: %s', LAST_UPDATED_FILE, lastupdated.toISOString()));
+	status.set('lastupdated', new Date(data));
+	console.log(sprintf('lastupdated successfully read from %s: %s', LAST_UPDATED_FILE, status.get('lastupdated').toISOString()));
 });
 
 function writeCardData() {
@@ -63,8 +65,8 @@ function updateLastupdated() {
 			console.log('Failed to write data/lastupdated', error);
 			throw error;
 		}
-		lastupdated = tempLastupdated;
-		console.log('Updated lastupdated to', lastupdated.toISOString());
+		status.set('lastupdated', tempLastupdated);
+		console.log('Updated lastupdated to', status.get('lastupdated').toISOString());
 	});
 }
 
@@ -118,9 +120,7 @@ function addRoute(path, jsonBuilder) {
 }
 
 addRoute('/status', function(req) {
-	return {
-		lastupdated: lastupdated.toISOString(),
-	};
+	return status;
 });
 
 addRoute('/sets', function(req) {
