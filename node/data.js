@@ -7,6 +7,10 @@ var CARDS_FILE = 'data/cards.json';
 var LAST_UPDATED_FILE = 'data/lastupdated';
 fs.mkdir('data');
 
+function saveToFile(data, filename, callback) {
+	fs.writeFile(filename, JSON.stringify(data), { encoding: 'utf8' }, callback);
+}
+
 var Card = Backbone.Model.extend({ idAttribute: 'code' });
 var CardList = Backbone.Collection.extend({
 	model: Card,
@@ -29,12 +33,12 @@ var CardList = Backbone.Collection.extend({
 	},
 
 	save: function() {
-		fs.writeFile(CARDS_FILE, JSON.stringify(this), { encoding: 'utf8' }, _.bind(function(error) {
+		saveToFile(this, CARDS_FILE, function(error) {
 			if(error) {
 				console.log('Failed to write card data to', CARDS_FILE, error);
-				throw error;
+			} else {
+				console.log('Successfully wrote card data to', CARDS_FILE);
 			}
-			console.log('Card data successfully written to', CARDS_FILE);
 		});
 	},
 });
@@ -100,13 +104,13 @@ var Status = Backbone.Model.extend({
 	save: function() {
 		var persistentAttributes = this.pick('lastupdated');
 
-		fs.writeFile(LAST_UPDATED_FILE, JSON.stringify(persistentAttributes), { encoding: 'utf8' }, _.bind(function(error) {
+		saveToFile(persistentAttributes, LAST_UPDATED_FILE, function(error) {
 			if(error) {
-				console.log('Failed to write', LAST_UPDATED_FILE, error);
-				throw error;
+				console.log('Failed to write status to', LAST_UPDATED_FILE, error);
+			} else {
+				console.log('Saved status:', persistentAttributes);
 			}
-			console.log('Saved status:', persistentAttributes);
-		}, this));
+		});
 	},
 });
 
