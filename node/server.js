@@ -85,4 +85,4 @@ controlServer.listen(8081, function() {
 	var port = controlServer.address().port;
 
 	console.log('Datasucker admin API listening at ' + host + ' port ' + port);
-})
+});
