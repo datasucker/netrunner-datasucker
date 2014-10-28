@@ -96,7 +96,19 @@ var sslCredentials = {};
 
 var start = _.after(2, function() {
 	console.log('Starting HTTP servers');
+
+	var httpServers = [{
+		listeningMessage: 'Datasucker',
+		port: 8080,
+		requestHandler: app,
+	}, {
+		listeningMessage: 'Datasucker admin API',
+		port: 8081,
+		requestHandler: controllerApp,
+	}];
+
 	var httpsServers = [];
+
 	if(_(sslCredentials).has('key') && _(sslCredentials).has('cert')) {
 		console.log('SSL credentials available - starting HTTPS servers as well');
 		httpsServers = [{
@@ -111,15 +123,7 @@ var start = _.after(2, function() {
 			requestHandler: controllerApp,
 		}];
 	}
-	startServers([{
-		listeningMessage: 'Datasucker',
-		port: 8080,
-		requestHandler: app,
-	}, {
-		listeningMessage: 'Datasucker admin API',
-		port: 8081,
-		requestHandler: controllerApp,
-	}], httpsServers);
+	startServers(httpServers, httpsServers);
 });
 
 _(['key', 'cert']).each(function(credentialName) {
