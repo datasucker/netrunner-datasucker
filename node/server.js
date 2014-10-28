@@ -80,18 +80,25 @@ function listeningMessagePrinter(message, server) {
 	};
 }
 
-function startServer(requestHandler, adminRequestHandler) {
-	var server = http.createServer(requestHandler);
-	server.listen(8080, listeningMessagePrinter('Datasucker', server));
-
-	var controlServer = http.createServer(adminRequestHandler);
-	controlServer.listen(8081, listeningMessagePrinter('Datasucker admin API', controlServer));
+function startServers(serversSettings) {
+	_(serversSettings).each(function(serverSettings) {
+		var server = http.createServer(serverSettings.requestHandler);
+		server.listen(serverSettings.port, listeningMessagePrinter(serverSettings.listeningMessage, server));
+	});
 }
 
 var sslCredentials = {};
 
-var startServers = _.after(2, function() {
-	startServer(app, controllerApp);
+var start = _.after(2, function() {
+	startServers([{
+		listeningMessage: 'Datasucker',
+		port: 8080,
+		requestHandler: app,
+	}, {
+		listeningMessage: 'Datasucker admin API',
+		port: 8081,
+		requestHandler: controllerApp,
+	}]);
 });
 
 _(['key', 'cert']).each(function(credentialName) {
@@ -103,6 +110,6 @@ _(['key', 'cert']).each(function(credentialName) {
 			console.log('Successfully read SSL credentials from file', filename);
 			sslCredentials[credentialName] = data;
 		}
-		startServers();
+		start();
 	});
 });
