@@ -1,0 +1,17 @@
+{
+  "name": "netrunner-datasucker-node",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Simple Datasucker running locally in node",
+  "homepage": "https://github.com/datasucker/netrunner-datasucker",
+  "license": "MIT",
+  "dependencies": {
+    "backbone": "^1.1.2",
+    "express": "^4.10.0",
+    "request": "^2.46.0",
+    "underscore": "^1.7.0"
+  },
+  "scripts": {
+	  "update": "curl http://localhost:8081/update"
+  }
+}
