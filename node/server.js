@@ -65,24 +65,27 @@ addRoute('/card/:code', function(req, res) {
 	return undefined;
 });
 
-var server = http.createServer(app);
-server.listen(8080, function() {
-	var host = server.address().address;
-	var port = server.address().port;
-
-	console.log('Datasucker listening at ' + host + ' port ' + port);
-});
-
 var controllerApp = express();
 controllerApp.post('/update', function(req, res) {
 	fetchCgdbData();
 	res.status(200).end();
 });
 
-var controlServer = http.createServer(controllerApp);
-controlServer.listen(8081, function() {
-	var host = controlServer.address().address;
-	var port = controlServer.address().port;
+function startServer(requestHandler, adminRequestHandler) {
+	var server = http.createServer(requestHandler);
+	server.listen(8080, function() {
+		var host = server.address().address;
+		var port = server.address().port;
 
-	console.log('Datasucker admin API listening at ' + host + ' port ' + port);
-});
+		console.log('Datasucker listening at ' + host + ' port ' + port);
+	});
+
+	var controlServer = http.createServer(adminRequestHandler);
+	controlServer.listen(8081, function() {
+		var host = controlServer.address().address;
+		var port = controlServer.address().port;
+
+		console.log('Datasucker admin API listening at ' + host + ' port ' + port);
+	});
+}
+startServer(app, controllerApp);
