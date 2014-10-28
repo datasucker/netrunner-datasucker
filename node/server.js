@@ -72,22 +72,20 @@ controllerApp.post('/update', function(req, res) {
 	res.status(200).end();
 });
 
-function startServer(requestHandler, adminRequestHandler) {
-	var server = http.createServer(requestHandler);
-	server.listen(8080, function() {
+function listeningMessagePrinter(message, server) {
+	return function() {
 		var host = server.address().address;
 		var port = server.address().port;
+		console.log(message, 'listening at', host, 'port', port);
+	};
+}
 
-		console.log('Datasucker listening at ' + host + ' port ' + port);
-	});
+function startServer(requestHandler, adminRequestHandler) {
+	var server = http.createServer(requestHandler);
+	server.listen(8080, listeningMessagePrinter('Datasucker', server));
 
 	var controlServer = http.createServer(adminRequestHandler);
-	controlServer.listen(8081, function() {
-		var host = controlServer.address().address;
-		var port = controlServer.address().port;
-
-		console.log('Datasucker admin API listening at ' + host + ' port ' + port);
-	});
+	controlServer.listen(8081, listeningMessagePrinter('Datasucker admin API', controlServer));
 }
 
 var sslCredentials = {};
