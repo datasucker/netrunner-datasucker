@@ -12,6 +12,8 @@ var cards = data.cards;
 var sets = data.sets;
 var status = data.status;
 
+var DISABLE_HTTP_IF_HTTPS_AVAILABLE = true;
+
 // The current fallback URL: this can be configured via a DSConfig property of ( dataURL : __url__)
 var fallbackDataURL = 'http://www.cardgamedb.com/deckbuilders/androidnetrunner/database/anjson-cgdb-adn18.jgz';
 
@@ -110,7 +112,8 @@ var start = _.after(2, function() {
 	var httpsServers = [];
 
 	if(_(sslCredentials).has('key') && _(sslCredentials).has('cert')) {
-		console.log('SSL credentials available - starting HTTPS servers as well');
+		console.log('SSL credentials available - starting HTTPS servers');
+
 		httpsServers = [{
 			credentials: sslCredentials,
 			listeningMessage: 'Datasucker',
@@ -122,6 +125,11 @@ var start = _.after(2, function() {
 			port: 8444,
 			requestHandler: controllerApp,
 		}];
+
+		if(DISABLE_HTTP_IF_HTTPS_AVAILABLE) {
+			console.log('Disabling HTTP - using HTTPS only');
+			httpServers = [];
+		}
 	}
 	startServers(httpServers, httpsServers);
 });
