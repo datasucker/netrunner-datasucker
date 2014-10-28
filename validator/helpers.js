@@ -1,6 +1,13 @@
 var request = require('request');
 var _ = require('underscore');
 
+var extraCaCert = require('./test-params').extraCaCert;
+if(extraCaCert) {
+    require('ssl-root-cas/latest')
+        .inject()
+        .addFile(extraCaCert);
+}
+
 module.exports = {
     makeCachedRequest: (function() {
         var cachedData = {};

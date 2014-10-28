@@ -17,5 +17,8 @@
   "scripts": {
     "autotest": "./node_modules/.bin/supervisor -n exit -- node_modules/.bin/mocha spec",
     "test": "./node_modules/.bin/mocha spec"
+  },
+  "optionalDependencies": {
+    "ssl-root-cas": "^1.1.7"
   }
 }
