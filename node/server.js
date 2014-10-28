@@ -1,5 +1,6 @@
 var fs = require('fs');
 var http = require('http');
+var https = require('https');
 var request = require('request');
 var express = require('express');
 var _ = require('underscore');
@@ -80,9 +81,13 @@ function listeningMessagePrinter(message, server) {
 	};
 }
 
-function startServers(serversSettings) {
-	_(serversSettings).each(function(serverSettings) {
+function startServers(httpServers, httpsServers) {
+	_(httpServers).each(function(serverSettings) {
 		var server = http.createServer(serverSettings.requestHandler);
+		server.listen(serverSettings.port, listeningMessagePrinter(serverSettings.listeningMessage, server));
+	});
+	_(httpsServers).each(function(serverSettings) {
+		var server = https.createServer(serverSettings.credentials, serverSettings.requestHandler);
 		server.listen(serverSettings.port, listeningMessagePrinter(serverSettings.listeningMessage, server));
 	});
 }
@@ -90,6 +95,22 @@ function startServers(serversSettings) {
 var sslCredentials = {};
 
 var start = _.after(2, function() {
+	console.log('Starting HTTP servers');
+	var httpsServers = [];
+	if(_(sslCredentials).has('key') && _(sslCredentials).has('cert')) {
+		console.log('SSL credentials available - starting HTTPS servers as well');
+		httpsServers = [{
+			credentials: sslCredentials,
+			listeningMessage: 'Datasucker',
+			port: 8443,
+			requestHandler: app,
+		}, {
+			credentials: sslCredentials,
+			listeningMessage: 'Datasucker admin API',
+			port: 8444,
+			requestHandler: controllerApp,
+		}];
+	}
 	startServers([{
 		listeningMessage: 'Datasucker',
 		port: 8080,
@@ -98,7 +119,7 @@ var start = _.after(2, function() {
 		listeningMessage: 'Datasucker admin API',
 		port: 8081,
 		requestHandler: controllerApp,
-	}]);
+	}], httpsServers);
 });
 
 _(['key', 'cert']).each(function(credentialName) {
