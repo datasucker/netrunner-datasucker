@@ -1,3 +1,4 @@
+var fs = require('fs');
 var http = require('http');
 var request = require('request');
 var express = require('express');
@@ -88,4 +89,22 @@ function startServer(requestHandler, adminRequestHandler) {
 		console.log('Datasucker admin API listening at ' + host + ' port ' + port);
 	});
 }
-startServer(app, controllerApp);
+
+var sslCredentials = {};
+
+var startServers = _.after(2, function() {
+	startServer(app, controllerApp);
+});
+
+_(['key', 'cert']).each(function(credentialName) {
+	var filename = 'ssl/' + credentialName + '.pem';
+	fs.readFile(filename, function(error, data) {
+		if(error) {
+			console.log('Failed to read SSL credentials from file', filename, error);
+		} else {
+			console.log('Successfully read SSL credentials from file', filename);
+			sslCredentials[credentialName] = data;
+		}
+		startServers();
+	});
+});
