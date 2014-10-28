@@ -121,7 +121,7 @@ var httpsServers = [{
 var start = _.after(2, function() {
 	console.log('Starting HTTP servers');
 
-	if(_(sslCredentials).has('key') && _(sslCredentials).has('cert')) {
+	if(sslCredentials.key && sslCredentials.cert) {
 		console.log('SSL credentials available - starting HTTPS servers');
 
 		if(DISABLE_HTTP_IF_HTTPS_AVAILABLE) {
