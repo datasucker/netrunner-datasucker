@@ -11,7 +11,7 @@ Datasuckers must implement a standardized REST API:
 - `/status` **=>** returns a Status Object
 
 #### Response Requirements
-All responses must have the the appropriate **[CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing)** header:
+All responses must have the appropriate **[CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing)** header:
 ```
 response.header['Access-Control-Allow-Origin'] = '*'
 ```
